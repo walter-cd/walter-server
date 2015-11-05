@@ -13,27 +13,28 @@ import (
 )
 
 type Project struct {
-	Id        int64 `db:"pk"`
-	Name      string
-	Repo      string `db:"unique"`
+	Id        int64  `db:"pk"`
+	Name      string `size:"255"`
+	Repo      string `db:"unique" size:"255"`
 	CreatedAt *time.Time
 }
+
 type Report struct {
-	Id          int64 `db:"pk"`
-	Status      string
+	Id          int64  `db:"pk"`
+	Status      string `size:"255"`
 	ProjectId   int64
-	Branch      string
+	Branch      string `size:"255"`
 	CompareUrl  string
 	Duration    int64
-	TriggeredBy string
+	TriggeredBy string `size:"255"`
 	CreatedAt   *time.Time
 }
 
 type Commit struct {
 	Id        int64 `db:"pk"`
 	ReportId  int64
-	Reivision string
-	Author    string
+	Reivision string `size:"255"`
+	Author    string `size:"255"`
 	Message   string
 	CreatedAt *time.Time
 }
@@ -42,8 +43,8 @@ type Stage struct {
 	Id            int64 `db:"pk"`
 	ReportId      int64
 	ParentStageId int64
-	Name          string
-	Status        string
+	Name          string `size:"255"`
+	Status        string `size:"255"`
 	Out           string
 	Err           string
 	Duration      int64
