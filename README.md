@@ -44,10 +44,17 @@ Content-Type: application/json
     },
     {
       "name": "stage 2",
-      "status": "fail",
+      "status": "success",
       "out": "foo",
       "err": "bar",
-      "duration": 20
+      "duration": 20,
+      "stages": [
+        "name": "child stage 1",
+        "status": "fail",
+        "out": "foo",
+        "err": "bar",
+        "duration": 10
+      ]
     }
   ],
   "compare_url": "https://xxxxxx/", # Optional
