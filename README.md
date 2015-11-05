@@ -28,11 +28,13 @@ Content-Type: application/json
     {
       "revision": "xxxxxxxxx",
       "author": "mizzy",
+      "message": "xxxxxxx"
     },
     {
       "revision": "xxxxxxxxx",
       "author": "mizzy",
-    },
+      "message": "xxxxxx"
+    }
   ],
   "stages": [
     {
