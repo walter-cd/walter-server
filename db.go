@@ -1,6 +1,7 @@
 package main
 
 import (
+	"regexp"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -64,7 +65,9 @@ func (d *Db) Init() {
 
 	for _, t := range tables {
 		if err := db.CreateTable(t); err != nil {
-			panic(err)
+			if !regexp.MustCompile(`already exists`).Match([]byte(err.Error())) {
+				panic(err)
+			}
 		}
 	}
 
