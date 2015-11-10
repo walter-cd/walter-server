@@ -6,8 +6,10 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+	"regexp"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/walter-cd/walter-server/api"
 )
 
 type templateHandler struct {
@@ -33,7 +35,10 @@ func main() {
 
 	flag.Parse() // parse the flags
 
-	http.Handle("/", &templateHandler{filename: "index.html"})
+	r := &RegexpHandler{}
+	r.Handler(regexp.MustCompile(`^/api/v1/reports(/.*)?$`), &api.Reports{})
+
+	http.Handle("/", r)
 
 	if err := http.ListenAndServe(*host, nil); err != nil {
 		log.Fatal("ListenAndServe:", err)
