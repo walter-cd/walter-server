@@ -3,8 +3,11 @@ package api
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/walter-cd/walter-server/db"
 )
 
 type Reports struct{}
@@ -58,5 +61,21 @@ func createReport(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	w.Write([]byte(res))
+	dh := db.GetHandler()
+	var projects []db.Project
+	if err := dh.Select(&projects, dh.Where("repo", "=", report.Repo)); err != nil {
+		panic(err)
+	}
+
+	var id int64
+	if len(projects) == 0 {
+		project := &db.Project{Name: report.Project, Repo: report.Repo}
+		dh.Insert(project)
+		id, _ = dh.LastInsertId()
+	} else {
+		id = projects[0].Id
+	}
+
+	fmt.Printf("%i", id)
+
 }
