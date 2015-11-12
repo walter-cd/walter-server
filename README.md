@@ -22,7 +22,7 @@ Content-Type: application/json
 {
   "project": "walter-server",
   "status": "fail",
-  "repo": "https://github.com/walter-cd/walter-server", 
+  "repo": "https://github.com/walter-cd/walter-server",
   "branch": "master",
   "commits": [
     {
@@ -51,11 +51,13 @@ Content-Type: application/json
       "err": "bar",
       "duration": 20,
       "stages": [
-        "name": "child stage 1",
-        "status": "fail",
-        "out": "foo",
-        "err": "bar",
-        "duration": 10
+        {
+          "name": "child stage 1",
+          "status": "fail",
+          "out": "foo",
+          "err": "bar",
+          "duration": 10
+        }
       ]
     }
   ],
