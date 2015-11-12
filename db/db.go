@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"regexp"
@@ -7,8 +7,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/naoina/genmai"
 )
-
-type Db struct{}
 
 type Project struct {
 	Id        int64  `db:"pk"`
@@ -49,7 +47,7 @@ type Stage struct {
 	CreatedAt     *time.Time
 }
 
-func (d *Db) Init() {
+func Init() {
 	db, err := genmai.New(&genmai.SQLite3Dialect{}, "walter.sqlite3")
 	if err != nil {
 		panic(err)
@@ -71,4 +69,12 @@ func (d *Db) Init() {
 		}
 	}
 
+}
+func GetHandler() *genmai.DB {
+	db, err := genmai.New(&genmai.SQLite3Dialect{}, "walter.sqlite3")
+	if err != nil {
+		panic(err)
+	}
+
+	return db
 }

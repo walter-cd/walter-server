@@ -10,6 +10,7 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/walter-cd/walter-server/api"
+	"github.com/walter-cd/walter-server/db"
 )
 
 type templateHandler struct {
@@ -30,7 +31,6 @@ func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 var host = flag.String("host", ":8080", "The host of the application.")
 
 func main() {
-	db := &Db{}
 	db.Init()
 
 	flag.Parse() // parse the flags
