@@ -47,6 +47,11 @@ type Stage struct {
 	CreatedAt     time.Time
 }
 
+func (t *Project) BeforeInsert() error {
+	t.CreatedAt = time.Now()
+	return nil
+}
+
 func Init() {
 	db, err := genmai.New(&genmai.SQLite3Dialect{}, "walter.sqlite3")
 	if err != nil {
