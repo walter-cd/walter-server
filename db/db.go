@@ -12,7 +12,7 @@ type Project struct {
 	Id        int64  `db:"pk"`
 	Name      string `size:"255"`
 	Repo      string `db:"unique" size:"255"`
-	CreatedAt *time.Time
+	CreatedAt time.Time
 }
 
 type Report struct {
@@ -23,7 +23,7 @@ type Report struct {
 	CompareUrl  string
 	Duration    int64
 	TriggeredBy string `size:"255"`
-	CreatedAt   *time.Time
+	CreatedAt   time.Time
 }
 
 type Commit struct {
@@ -32,7 +32,7 @@ type Commit struct {
 	Reivision string `size:"255"`
 	Author    string `size:"255"`
 	Message   string
-	CreatedAt *time.Time
+	CreatedAt time.Time
 }
 
 type Stage struct {
@@ -44,7 +44,7 @@ type Stage struct {
 	Out           string
 	Err           string
 	Duration      int64
-	CreatedAt     *time.Time
+	CreatedAt     time.Time
 }
 
 func Init() {
