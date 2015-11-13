@@ -21,7 +21,7 @@ type Report struct {
 	Stages      []Stage
 	CompareUrl  string
 	Duration    int
-	TriggeredBy string
+	TriggeredBy User
 }
 
 type Commit struct {
@@ -37,6 +37,12 @@ type Stage struct {
 	Err      string
 	Stages   []Stage
 	Duration int
+}
+
+type User struct {
+	Name      string
+	Url       string
+	AvatarUrl string
 }
 
 func (t *Reports) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -67,15 +73,33 @@ func createReport(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	var id int64
+	var projectId int64
 	if len(projects) == 0 {
 		project := &db.Project{Name: report.Project, Repo: report.Repo}
 		dh.Insert(project)
-		id, _ = dh.LastInsertId()
+		projectId, _ = dh.LastInsertId()
 	} else {
-		id = projects[0].Id
+		projectId = projects[0].Id
 	}
 
-	fmt.Printf("%i", id)
+	var users []db.User
+	if err := dh.Select(&users, dh.Where("url", "=", report.TriggeredBy.Url)); err != nil {
+		panic(err)
+	}
 
+	var userId int64
+	if len(users) == 0 {
+		user := &db.User{
+			Name:      report.TriggeredBy.Name,
+			Url:       report.TriggeredBy.Url,
+			AvatarUrl: report.TriggeredBy.AvatarUrl,
+		}
+		dh.Insert(user)
+		userId, _ = dh.LastInsertId()
+	} else {
+		userId = users[0].Id
+	}
+
+	fmt.Printf("%i\n", projectId)
+	fmt.Printf("%i\n", userId)
 }

@@ -61,12 +61,12 @@ Content-Type: application/json
       ]
     }
   ],
-  "compare_url": "https://xxxxxx/", # Optional
+  "compareUrl": "https://xxxxxx/", # Optional
   "duration": 80,
-  "triggered_by": {
-    "user": "mizzy",
+  "triggeredBy": {
+    "name": "mizzy",
     "url":  "https://github.com/mizzy",
-    "avatar_url": "https://avatars1.githubusercontent.com/u/3620",
+    "avatarUrl": "https://avatars1.githubusercontent.com/u/3620",
   } # Optional
 }
 ```

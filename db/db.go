@@ -47,7 +47,35 @@ type Stage struct {
 	CreatedAt     time.Time
 }
 
+type User struct {
+	Id        int64 `db:"pk"`
+	Name      string
+	Url       string `db:"unique"`
+	AvatarUrl string
+	CreatedAt time.Time
+}
+
 func (t *Project) BeforeInsert() error {
+	t.CreatedAt = time.Now()
+	return nil
+}
+
+func (t *Report) BeforeInsert() error {
+	t.CreatedAt = time.Now()
+	return nil
+}
+
+func (t *Commit) BeforeInsert() error {
+	t.CreatedAt = time.Now()
+	return nil
+}
+
+func (t *Stage) BeforeInsert() error {
+	t.CreatedAt = time.Now()
+	return nil
+}
+
+func (t *User) BeforeInsert() error {
 	t.CreatedAt = time.Now()
 	return nil
 }
@@ -64,6 +92,7 @@ func Init() {
 		&Report{},
 		&Commit{},
 		&Stage{},
+		&User{},
 	}
 
 	for _, t := range tables {
