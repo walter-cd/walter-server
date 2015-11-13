@@ -22,7 +22,7 @@ type Report struct {
 	Branch      string `size:"255"`
 	CompareUrl  string
 	Duration    int64
-	TriggeredBy string `size:"255"`
+	TriggeredBy int64
 	CreatedAt   time.Time
 }
 

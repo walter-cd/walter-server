@@ -20,7 +20,7 @@ type Report struct {
 	Commits     []Commit
 	Stages      []Stage
 	CompareUrl  string
-	Duration    int
+	Duration    int64
 	TriggeredBy User
 }
 
@@ -36,7 +36,7 @@ type Stage struct {
 	Out      string
 	Err      string
 	Stages   []Stage
-	Duration int
+	Duration int64
 }
 
 type User struct {
@@ -61,21 +61,21 @@ func createReport(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
-	var report Report
-	err := json.Unmarshal([]byte(body), &report)
+	var data Report
+	err := json.Unmarshal([]byte(body), &data)
 	if err != nil {
 		panic(err)
 	}
 
 	dh := db.GetHandler()
 	var projects []db.Project
-	if err := dh.Select(&projects, dh.Where("repo", "=", report.Repo)); err != nil {
+	if err := dh.Select(&projects, dh.Where("repo", "=", data.Repo)); err != nil {
 		panic(err)
 	}
 
 	var projectId int64
 	if len(projects) == 0 {
-		project := &db.Project{Name: report.Project, Repo: report.Repo}
+		project := &db.Project{Name: data.Project, Repo: data.Repo}
 		dh.Insert(project)
 		projectId, _ = dh.LastInsertId()
 	} else {
@@ -83,21 +83,70 @@ func createReport(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var users []db.User
-	if err := dh.Select(&users, dh.Where("url", "=", report.TriggeredBy.Url)); err != nil {
+	if err := dh.Select(&users, dh.Where("url", "=", data.TriggeredBy.Url)); err != nil {
 		panic(err)
 	}
 
 	var userId int64
 	if len(users) == 0 {
 		user := &db.User{
-			Name:      report.TriggeredBy.Name,
-			Url:       report.TriggeredBy.Url,
-			AvatarUrl: report.TriggeredBy.AvatarUrl,
+			Name:      data.TriggeredBy.Name,
+			Url:       data.TriggeredBy.Url,
+			AvatarUrl: data.TriggeredBy.AvatarUrl,
 		}
 		dh.Insert(user)
 		userId, _ = dh.LastInsertId()
 	} else {
 		userId = users[0].Id
+	}
+
+	report := &db.Report{
+		Status:      data.Status,
+		ProjectId:   projectId,
+		Branch:      data.Branch,
+		CompareUrl:  data.CompareUrl,
+		Duration:    data.Duration,
+		TriggeredBy: userId,
+	}
+
+	dh.Insert(report)
+
+	reportId, _ := dh.LastInsertId()
+
+	for _, commit := range data.Commits {
+		c := &db.Commit{
+			ReportId:  reportId,
+			Reivision: commit.Revision,
+			Author:    commit.Author,
+			Message:   commit.Message,
+		}
+		dh.Insert(c)
+	}
+
+	for _, stage := range data.Stages {
+		s := &db.Stage{
+			ReportId: reportId,
+			Name:     stage.Name,
+			Status:   stage.Status,
+			Out:      stage.Out,
+			Err:      stage.Err,
+			Duration: stage.Duration,
+		}
+		dh.Insert(s)
+		stageId, _ := dh.LastInsertId()
+
+		for _, childStage := range stage.Stages {
+			s := &db.Stage{
+				ReportId:      reportId,
+				ParentStageId: stageId,
+				Name:          childStage.Name,
+				Status:        childStage.Status,
+				Out:           childStage.Out,
+				Err:           childStage.Err,
+				Duration:      childStage.Duration,
+			}
+			dh.Insert(s)
+		}
 	}
 
 	fmt.Printf("%i\n", projectId)
