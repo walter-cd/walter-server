@@ -63,7 +63,11 @@ Content-Type: application/json
   ],
   "compare_url": "https://xxxxxx/", # Optional
   "duration": 80,
-  "triggered_by": "mizzy" # Optional
+  "triggered_by": {
+    "user": "mizzy",
+    "url":  "https://github.com/mizzy",
+    "avatar_url": "https://avatars1.githubusercontent.com/u/3620",
+  } # Optional
 }
 ```
 
