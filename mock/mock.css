@@ -1,0 +1,31 @@
+#container {
+    width: 780px;
+    text-align: left;
+    margin: 0 auto;
+}  
+
+#content {
+    margin: 0 10px;
+}  
+
+#build {
+    width: 500px;
+    float: right;
+}  
+
+#projects {
+    width: 250px;
+    float: left;
+}
+
+.project {
+    margin: 5px;
+    padding: 5px;
+    background: #eeeeee;
+}
+
+pre {
+    background: #000000;
+    color: #ffffff;
+    padding: 0 0 0 0;
+}
