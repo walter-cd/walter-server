@@ -42,27 +42,31 @@ Content-Type: application/json
       "status": "success",
       "out": "foo",
       "err": "bar",
-      "duration": 10
+      "start": 1449062903,
+      "end": 1449062940,
     },
     {
       "name": "stage 2",
       "status": "success",
       "out": "foo",
       "err": "bar",
-      "duration": 20,
+      "start": 1449062903,
+      "end": 1449062940,
       "stages": [
         {
           "name": "child stage 1",
           "status": "fail",
           "out": "foo",
           "err": "bar",
-          "duration": 10
+          "start": 1449062903,
+          "end": 1449062940,
         }
       ]
     }
   ],
   "compareUrl": "https://xxxxxx/", # Optional
-  "duration": 80,
+  "start": 1449062903,
+  "end": 1449062940,
   "triggeredBy": {
     "name": "mizzy",
     "url":  "https://github.com/mizzy",

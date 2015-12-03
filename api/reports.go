@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/walter-cd/walter-server/db"
 )
@@ -20,7 +21,8 @@ type Report struct {
 	Commits     []Commit
 	Stages      []Stage
 	CompareUrl  string
-	Duration    int64
+	Start       int64
+	End         int64
 	TriggeredBy User
 }
 
@@ -31,12 +33,13 @@ type Commit struct {
 }
 
 type Stage struct {
-	Name     string
-	Status   string
-	Out      string
-	Err      string
-	Stages   []Stage
-	Duration int64
+	Name   string
+	Status string
+	Out    string
+	Err    string
+	Stages []Stage
+	Start  int64
+	End    int64
 }
 
 type User struct {
@@ -105,7 +108,8 @@ func createReport(w http.ResponseWriter, r *http.Request) {
 		ProjectId:   projectId,
 		Branch:      data.Branch,
 		CompareUrl:  data.CompareUrl,
-		Duration:    data.Duration,
+		Start:       time.Unix(data.Start, 0),
+		End:         time.Unix(data.End, 0),
 		TriggeredBy: userId,
 	}
 
@@ -130,7 +134,8 @@ func createReport(w http.ResponseWriter, r *http.Request) {
 			Status:   stage.Status,
 			Out:      stage.Out,
 			Err:      stage.Err,
-			Duration: stage.Duration,
+			Start:    time.Unix(stage.Start, 0),
+			End:      time.Unix(stage.End, 0),
 		}
 		dh.Insert(s)
 		stageId, _ := dh.LastInsertId()
@@ -143,7 +148,8 @@ func createReport(w http.ResponseWriter, r *http.Request) {
 				Status:        childStage.Status,
 				Out:           childStage.Out,
 				Err:           childStage.Err,
-				Duration:      childStage.Duration,
+				Start:         time.Unix(childStage.Start, 0),
+				End:           time.Unix(childStage.End, 0),
 			}
 			dh.Insert(s)
 		}

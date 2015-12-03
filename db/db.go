@@ -21,7 +21,8 @@ type Report struct {
 	ProjectId   int64
 	Branch      string `size:"255"`
 	CompareUrl  string
-	Duration    int64
+	Start       time.Time
+	End         time.Time
 	TriggeredBy int64
 	CreatedAt   time.Time
 }
@@ -43,7 +44,8 @@ type Stage struct {
 	Status        string `size:"255"`
 	Out           string
 	Err           string
-	Duration      int64
+	Start         time.Time
+	End           time.Time
 	CreatedAt     time.Time
 }
 
