@@ -120,7 +120,7 @@ func createReport(w http.ResponseWriter, r *http.Request) {
 	for _, commit := range data.Commits {
 		c := &db.Commit{
 			ReportId:  reportId,
-			Reivision: commit.Revision,
+			Revision:  commit.Revision,
 			Author:    commit.Author,
 			Message:   commit.Message,
 		}

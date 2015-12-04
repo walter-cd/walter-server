@@ -30,7 +30,7 @@ type Report struct {
 type Commit struct {
 	Id        int64 `db:"pk"`
 	ReportId  int64
-	Reivision string `size:"255"`
+	Revision  string `size:"255"`
 	Author    string `size:"255"`
 	Message   string
 	CreatedAt time.Time
