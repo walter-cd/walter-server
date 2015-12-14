@@ -29,6 +29,6 @@ func (h *RegexpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	// no pattern matched; send 404 response
-	http.NotFound(w, r)
+	// no pattern matched; serve file statically
+	http.FileServer(http.Dir("web")).ServeHTTP(w, r)
 }
