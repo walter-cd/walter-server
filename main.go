@@ -28,7 +28,7 @@ func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	t.templ.Execute(w, data)
 }
 
-var host = flag.String("host", ":8080", "The host of the application.")
+var host = flag.String("host", "127.0.0.1:8080", "The host of the application.")
 
 func main() {
 	db.Init()
