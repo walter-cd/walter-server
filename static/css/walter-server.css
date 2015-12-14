@@ -1,0 +1,43 @@
+/* Walter Server CSS */
+
+.walter-logo {
+    height: 36px;
+}
+
+.walter-color-faded {
+    opacity: 0.7;
+}
+
+.walter-project-heading {
+    background-image: url(../img/walter-project.png);
+    background-size: 24px 24px;
+    background-repeat: no-repeat;
+    padding-left: 28px;
+    line-height: 28px;
+    vertical-align: middle;
+}
+
+.walter-avatar {
+    line-height: 28px;
+}
+
+.walter-avatar-icon {
+    margin-right: 4px;
+    width: 28px;
+    height: 28px;
+    display: inline-block;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+    vertical-align: top;
+}
+
+.walter-console {
+    color: #0f0;
+    background-color: #34495E;
+}
+
+.walter-console-error {
+    color: #fff;
+    background-color: #B94A48;
+}

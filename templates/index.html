@@ -1,1 +1,59 @@
-index
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Walter Server</title>
+
+    <link rel="shortcut icon" href="img/walter-logo.png"/>
+
+    <link rel="stylesheet" href="css/groundwork.css"/>
+    <link rel="stylesheet" href="css/walter-server.css"/>
+
+    <script src="js/jquery-2.1.4.min.js"></script>
+    <script src="js/modernizr-2.6.2.min.js"></script>
+    <script src="js/groundwork.all.js"></script>
+    <script src="js/walter-server.js"></script>
+    <script src="js/walter-server-ui.js"></script>
+
+    <!--test only-->
+    <script src="js/walter-server-emulator.js"></script>
+    <!--test only-->
+
+    <script>
+        $(document).ready(function () {
+            // create a walter server UI in the specified divs
+            new WalterServerUI(
+                    new WalterServer(),
+                    "optional project filter",
+                    $("#walter-build-info")
+            );
+        });
+    </script>
+
+</head>
+<body>
+
+<header class="padded source-sans-pro">
+    <div class="container">
+        <div class="row">
+            <div class="one half">
+                <h2 class="logo">
+                    <a href="/"><img class="walter-logo" src="img/walter-logo-full.png"/></a>
+                </h2>
+            </div>
+            <div class="one half">
+                    <p class="small pad-top align-right align-left-small-tablet">
+                    <a href="https://github.com/walter-cd/walter-server" target="_blank">Github Project</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div  class="container padded source-sans-pro">
+    <div id="walter-build-info" class="row ten twelfths skip-one"></div>
+</div>
+
+</body>
+</html>
+
+
