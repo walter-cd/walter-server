@@ -3,7 +3,6 @@ package api
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -154,7 +153,4 @@ func createReport(w http.ResponseWriter, r *http.Request) {
 			dh.Insert(s)
 		}
 	}
-
-	fmt.Printf("%i\n", projectId)
-	fmt.Printf("%i\n", userId)
 }
