@@ -3,6 +3,7 @@ package api
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -50,7 +51,32 @@ type User struct {
 func (t *Reports) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		createReport(w, r)
+	} else {
+		getReport(w, r)
 	}
+}
+
+func getReport(w http.ResponseWriter, r *http.Request) {
+	dh := db.GetHandler()
+
+	var reports []db.Report
+	dh.Select(&reports)
+
+	var res []*Report
+
+	for _, report := range reports {
+		var projects []db.Project
+		dh.Select(&projects, dh.Where("id", "=", report.ProjectId))
+		project := projects[0]
+		r := &Report{
+			Project: project.Name,
+			Repo:    project.Repo,
+		}
+		res = append(res, r)
+	}
+
+	b, _ := json.Marshal(res)
+	fmt.Fprint(w, string(b))
 }
 
 func createReport(w http.ResponseWriter, r *http.Request) {
