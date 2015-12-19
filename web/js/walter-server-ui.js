@@ -9,6 +9,9 @@
  */
 function WalterServerUI(walterServer, projectId, container) {
 
+    /* seconds between refreshes */
+    var refreshSeconds = 5;
+
     /* div templates to reduce markup-in-code and put framework dependencies closer together */
     var divTemplates = {
         "div": {classes: []},
@@ -38,13 +41,13 @@ function WalterServerUI(walterServer, projectId, container) {
         "status-passed-icon": {classes: ["icon-ok-sign success inline"]},
         "status-failed-icon": {classes: ["icon-exclamation-sign error inline"]},
         "status-running-icon": {classes: ["icon-refresh icon-spin question inline"]},
-        "status-pending-icon": {classes: ["icon-time alert inline"]},
+        "status-pending-icon": {classes: ["icon-time walter-grey inline"]},
         "status-passed": {classes: ["success inline"]},
         "status-failed": {classes: ["error inline"]},
         "status-running": {classes: ["question inline"]},
-        "status-pending": {classes: ["alert inline"]},
+        "status-pending": {classes: ["walter-grey inline"]},
         "collapsible": {},
-        "collapser": {classes: ["icon-chevron-right inline info"]}
+        "collapser": {classes: ["icon-chevron-right inline info walter-pointer"]}
     };
 
     // the inner block
@@ -53,14 +56,20 @@ function WalterServerUI(walterServer, projectId, container) {
     /**
      * Create and style a wrapper div using the named template
      * @param templateName
-     * @param idSuffix
+     * @param [idSuffix]
      * @returns {*|jQuery}
      */
     function div(templateName, idSuffix) {
         templateName = templateName ? templateName : "div";
         var template = divTemplates[templateName];
+
+        var id = divId(templateName, idSuffix);
         var w = $(template && template.tag ? template.tag : "<div></div>")
-            .addClass("walter-" + templateName + (idSuffix ? "-" + idSuffix : ""));
+            .addClass(id);
+
+        if (idSuffix) {
+            $(w).attr("id", id);
+        }
         if (template) {
             if (template.classes) {
                 for (var i = 0; i < template.classes.length; i++) {
@@ -75,6 +84,16 @@ function WalterServerUI(walterServer, projectId, container) {
         }
 
         return w;
+    }
+
+    /**
+     * Return the id for a div with the given template and optional id
+     * @param templateName
+     * @param [idSuffix]
+     * @returns {string}
+     */
+    function divId(templateName, idSuffix) {
+        return "walter-" + templateName + (idSuffix ? "-" + idSuffix : "");
     }
 
     /**
@@ -98,15 +117,16 @@ function WalterServerUI(walterServer, projectId, container) {
     /**
      * Populate a project container
      * @param project
+     * @param [expanded]
      */
-    function projectContainer(project) {
+    function projectContainer(project, expanded) {
         var w = div("project", project.ID);
         $(w).append(projectHeaderContainer(project));
 
         if (project.Stages && project.Stages.length) {
-            $(w).append(div("right").append(collapser($(w))))
+            $(w).append(div("right").append(collapser($(w), expanded)))
             for (var i = 0; i < project.Stages.length; i++) {
-                $(w).append(stageContainer(project.Stages[i]));
+                $(w).append(stageContainer(project.Stages[i], expanded));
             }
         }
         $(w).append(div('vertical-space'));
@@ -142,6 +162,7 @@ function WalterServerUI(walterServer, projectId, container) {
     /**
      * A staus indicator
      * @param state
+     * @param [contents]
      * @returns {*|jQuery}
      */
     function status(state, contents) {
@@ -216,8 +237,9 @@ function WalterServerUI(walterServer, projectId, container) {
     /**
      * Create a project stage container
      * @param stage
+     * @param [expanded]
      */
-    function stageContainer(stage) {
+    function stageContainer(stage, expanded) {
         var w = div("stage", stage.ID);
 
         $(w).append(
@@ -231,7 +253,8 @@ function WalterServerUI(walterServer, projectId, container) {
             .append(collapsible(
                 div()
                     .append(div("row").append(stage.Out == "" ? "" : div("console").append(div("pre").text(stage.Out))))
-                    .append(div("row").append(stage.Err == "" ? "" : div("console-error").append(div("pre").text(stage.Err))))
+                    .append(div("row").append(stage.Err == "" ? "" : div("console-error").append(div("pre").text(stage.Err)))),
+                expanded
             ));
 
         // add substages
@@ -239,7 +262,7 @@ function WalterServerUI(walterServer, projectId, container) {
             var subStages = div("indented");
             $(w).append(subStages);
             for (var i = 0; i < stage.Stages.length; i++) {
-                $(subStages).append(stageContainer(stage.Stages[i]));
+                $(subStages).append(stageContainer(stage.Stages[i], expanded));
             }
         }
         return w;
@@ -248,7 +271,7 @@ function WalterServerUI(walterServer, projectId, container) {
     /**
      * Create an url with optional link text
      * @param href
-     * @param linkText
+     * @param [linkText]
      */
     function url(href, linkText) {
         return div("url").attr("href", href).text(linkText ? linkText : href);
@@ -269,20 +292,23 @@ function WalterServerUI(walterServer, projectId, container) {
     /**
      * a button that will toggle the visiblilty of all collapsible children
      */
-    function collapser(parent) {
-        return div("collapser").on("click", function () {
-            $(this).toggleClass("rotate-90");
-            $(parent).find(".walter-collapsible").toggle();
-        });
+    function collapser(parent, expanded) {
+        return div("collapser")
+            .toggleClass("rotate-90", expanded == true)
+            .on("click", function () {
+                $(this).toggleClass("rotate-90");
+                $(parent).find(".walter-collapsible").toggle();
+            });
     }
 
     /**
      * Return a collapsible div with the given content
      * @param content
+     * @parma expanded
      */
-    function collapsible(content) {
+    function collapsible(content, expanded) {
         var w = div("collapsible");
-        $(w).append(content).hide();
+        $(w).append(content).toggle(expanded == true);
         return w;
     }
 
@@ -338,6 +364,7 @@ function WalterServerUI(walterServer, projectId, container) {
         return Math.floor(new Date().getTime() / 1000);
     }
 
+
     /**
      * Refresh data from the server
      */
@@ -345,9 +372,25 @@ function WalterServerUI(walterServer, projectId, container) {
         walterServer.getProjectHistory(projectId, function (history) {
             // iterate through projects
             for (var i = 0; i < history.length; i++) {
-                $(block).append(projectContainer(history[i]));
+
+                var existingPC = $("#" + divId("project", history[i].ID));
+                var expanded = $(existingPC).length && $(existingPC).find(".walter-collapsible").is(":visible");
+                var newPC = projectContainer(history[i], expanded);
+
+                // if the project already exists, merge the new content, else append it
+                if ($(existingPC).length > 0) {
+                    $(existingPC).replaceWith(newPC);
+                }
+                else {
+                    $(block).append(newPC);
+                }
             }
         });
+        // trap missing images
+        $('.walter-avatar-icon').error(function () {
+            $(this).attr('src', 'img/walter-default-avatar.png');
+        });
+        setTimeout(refresh, refreshSeconds * 1000);
     }
 
     // intialize the container
@@ -357,8 +400,4 @@ function WalterServerUI(walterServer, projectId, container) {
     // refresh now
     refresh();
 
-    // trap missing images
-    $('.walter-avatar-icon').error(function () {
-       $(this).attr('src', 'img/walter-default-avatar.png');
-    });
 }
