@@ -14,12 +14,13 @@ import (
 type Reports struct{}
 
 type Report struct {
+	Id          int64
 	Project     string
 	Status      string
 	Repo        string
 	Branch      string
-	Commits     []Commit
-	Stages      []Stage
+	Commits     []*Commit
+	Stages      []*Stage
 	CompareUrl  string
 	Start       int64
 	End         int64
@@ -37,7 +38,7 @@ type Stage struct {
 	Status string
 	Out    string
 	Err    string
-	Stages []Stage
+	Stages []*Stage
 	Start  int64
 	End    int64
 }
@@ -65,13 +66,67 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 	var res []*Report
 
 	for _, report := range reports {
+		r := &Report{
+			Id:         report.Id,
+			Status:     report.Status,
+			Branch:     report.Branch,
+			CompareUrl: report.CompareUrl,
+			Start:      report.Start.Unix(),
+			End:        report.End.Unix(),
+		}
+
 		var projects []db.Project
 		dh.Select(&projects, dh.Where("id", "=", report.ProjectId))
 		project := projects[0]
-		r := &Report{
-			Project: project.Name,
-			Repo:    project.Repo,
+
+		r.Project = project.Name
+		r.Repo = project.Repo
+
+		var commits []db.Commit
+		dh.Select(&commits, dh.Where("report_id", "=", report.Id))
+		for _, commit := range commits {
+			r.Commits = append(r.Commits, &Commit{
+				Revision: commit.Revision,
+				Author:   commit.Author,
+				Message:  commit.Message,
+			})
 		}
+
+		var users []db.User
+		dh.Select(&users, dh.Where("id", "=", report.TriggeredBy))
+		user := users[0]
+		r.TriggeredBy.Name = user.Name
+		r.TriggeredBy.Url = user.Url
+		r.TriggeredBy.AvatarUrl = user.AvatarUrl
+
+		var stages []db.Stage
+		dh.Select(&stages, dh.Where("report_id", "=", report.Id).And(dh.Where("parent_stage_id", "=", 0)))
+		for _, stage := range stages {
+			s := &Stage{
+				Name:   stage.Name,
+				Status: stage.Status,
+				Out:    stage.Out,
+				Err:    stage.Err,
+				Start:  stage.Start.Unix(),
+				End:    stage.End.Unix(),
+			}
+
+			var childStages []db.Stage
+			dh.Select(&childStages, dh.Where("report_id", "=", report.Id).And(dh.Where("parent_stage_id", "=", stage.Id)))
+			for _, childStage := range childStages {
+				s.Stages = append(s.Stages, &Stage{
+					Name:   childStage.Name,
+					Status: childStage.Status,
+					Out:    childStage.Out,
+					Err:    childStage.Err,
+					Start:  childStage.Start.Unix(),
+					End:    childStage.End.Unix(),
+				})
+			}
+
+			r.Stages = append(r.Stages, s)
+		}
+
 		res = append(res, r)
 	}
 
