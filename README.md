@@ -109,7 +109,6 @@ GET /api/v1/reports?maxId=XXX
           "Author": "mizzy",
           "Message": "Some changes"
         },
-        ...
       ],
       "Stages": [
         {
@@ -121,7 +120,6 @@ GET /api/v1/reports?maxId=XXX
           "Start": 1450268347,
           "End": 1450269085
         },
-        ...
       ],
       "CompareUrl": "http://compare.url/",
       "Start": 1450268347,
@@ -144,7 +142,6 @@ GET /api/v1/reports?maxId=XXX
           "Author": "gerryhocks",
           "Message": "Updated documentation"
         },
-        ...
       ],
       "Stages": [
         {
@@ -156,7 +153,6 @@ GET /api/v1/reports?maxId=XXX
           "Start": 1450247583,
           "End": 1450248050
         },
-        ...
       ],
       "CompareUrl": "http://compare.url/",
       "Start": 1450247583,
