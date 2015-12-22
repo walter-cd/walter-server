@@ -8,6 +8,10 @@
     opacity: 0.7;
 }
 
+.walter-color-grey {
+    color: #888;
+}
+
 .walter-project-heading {
     background-image: url(../img/walter-project.png);
     background-size: 24px 24px;
@@ -34,10 +38,6 @@
 
 .walter-pointer {
     cursor: pointer;
-}
-
-.walter-grey {
-    color: #888;
 }
 
 .walter-console {

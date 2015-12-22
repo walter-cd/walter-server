@@ -12,19 +12,28 @@ function WalterServerUI(walterServer, projectId, container) {
     /* seconds between refreshes */
     var refreshSeconds = 5;
 
+    /* tracks which projects are showing details */
+    var showProjectDetails = {};
+    /* tracks which projects are showDetails */
+    var showProjectExpanded = {};
+
     /* div templates to reduce markup-in-code and put framework dependencies closer together */
     var divTemplates = {
         "div": {classes: []},
         "inline": {classes: ["inline"]},
         "row": {classes: ["row"]},
+        "row-indented": {classes: ["row double-pad-left"]},
         "block": {classes: ["container"]},
         "url": {tag: "<a></a>"},
         "right": {classes: ["row align-right"]},
         "vertical-space": {tag: "<hr/>"},
         "indented": {classes: ["double-pad-left"]},
-        "project": {classes: ["row pad-top double-pad-bottom"]},
+        "project-wrapper": {},
+        "project-detail": {classes: ["row double-pad-bottom"]},
         "project-header": {classes: ["pad-bottom"]},
-        "project-heading": {tag: "<h2/>", classes: ["walter-project-heading"]},
+        "project-heading": {tag: "<h4/>", classes: ["walter-project-heading walter-pointer"]},
+        "project-summary": {classes: ["walter-pointer "]},
+        "project-summary-heading": {tag: "<h4/>", classes: ["walter-project-heading"]},
         "large": {tag: "<h4/>"},
         "stage": {classes: ["row"]},
         "clock-icon": {classes: ["icon-time inline", "walter-color-faded"]},
@@ -41,11 +50,11 @@ function WalterServerUI(walterServer, projectId, container) {
         "status-passed-icon": {classes: ["icon-ok-sign success inline"]},
         "status-failed-icon": {classes: ["icon-exclamation-sign error inline"]},
         "status-running-icon": {classes: ["icon-refresh icon-spin question inline"]},
-        "status-pending-icon": {classes: ["icon-time walter-grey inline"]},
+        "status-pending-icon": {classes: ["icon-time walter-color-grey inline"]},
         "status-passed": {classes: ["success inline"]},
         "status-failed": {classes: ["error inline"]},
         "status-running": {classes: ["question inline"]},
-        "status-pending": {classes: ["walter-grey inline"]},
+        "status-pending": {classes: ["walter-color-grey inline"]},
         "collapsible": {},
         "collapser": {classes: ["icon-chevron-right inline info walter-pointer"]}
     };
@@ -115,23 +124,107 @@ function WalterServerUI(walterServer, projectId, container) {
     }
 
     /**
-     * Populate a project container
+     * A div that wraps a summary and detail project display
      * @param project
-     * @param [expanded]
      */
-    function projectContainer(project, expanded) {
-        var w = div("project", project.ID);
-        $(w).append(projectHeaderContainer(project));
+    function projectWrapper(project) {
 
-        if (project.Stages && project.Stages.length) {
-            $(w).append(div("right").append(collapser($(w), expanded)))
-            for (var i = 0; i < project.Stages.length; i++) {
-                $(w).append(stageContainer(project.Stages[i], expanded));
-            }
+        var w = div("project-wrapper", project.ID);
+
+        if (showProjectExpanded[project.ID] == undefined) {
+            showProjectExpanded[project.ID] = false;
         }
-        $(w).append(div('vertical-space'));
+
+        var expanded = showProjectExpanded[project.ID] == true;
+
+        $(w).append(projectSummary(project).toggle(!expanded));
+        $(w).append(projectDetail(project, showProjectDetails[project.ID]).toggle(expanded));
 
         return w;
+    }
+
+
+    /**
+     * Populate a project details div
+     * @param project
+     * @param [showDetails]
+     */
+    function projectDetail(project, showDetails) {
+        var w = div("project-detail", project.ID);
+
+        $(w).append(projectHeader(project));
+        if (project.Stages && project.Stages.length) {
+            $(w).append(div("right").append(collapser(project.ID, $(w), showDetails)));
+            var stages = div("row-indented");
+            for (var i = 0; i < project.Stages.length; i++) {
+                $(stages).append(stageContainer(project.Stages[i], showDetails));
+            }
+            $(w).append(stages);
+        }
+
+        return w;
+    }
+
+    /**
+     * Populate a project summary
+     * @param project
+     */
+    function projectSummary(project) {
+
+        var w = div("project-summary", project.ID).on("click", function () {
+            toggleProject($(this).parent(), project.ID)
+        });
+
+        var timing = div("");
+        if (project.End) {
+            $(timing)
+                .append(humanifyTime(now() - project.Start))
+                .append(" ago");
+        } else {
+            $(timing).append(duration(project.Start, project.End));
+        }
+
+        $(w).append(
+            group([
+                {item: div("project-summary-heading").text(project.Project), width: "two sixths"},
+                {
+                    item: div().append(
+                        status(project.Status,
+                            div("inline")
+                                .append(" #" + project.ID + ' ' + project.Status + ' on ')
+                                .append(div("branch-icon"))
+                                .append(" " + project.Branch))),
+                    width: "two sixths"
+                },
+                {item: user(project.TriggeredBy), width: "one sixth"},
+                {item: timing, width: "one sixth align-right"}
+
+            ])
+        );
+
+        return w;
+    }
+
+    /**
+     * Expand/collapse a project node
+     * @parma projectId
+     */
+    function toggleProject(div, projectId) {
+        showProjectExpanded[projectId] = showProjectExpanded[projectId] ? false : true;
+
+        var summary = $(div).find("#" + divId("project-summary", projectId));
+        var details = $(div).find("#" + divId("project-detail", projectId));
+        $(summary).toggle(!showProjectExpanded[projectId]);
+        $(details).toggle(showProjectExpanded[projectId]);
+    }
+
+    function toggleProjects(expand) {
+        for (var projectId in showProjectExpanded) {
+            if (showProjectExpanded[projectId] != expand) {
+                var div = $(block).find("#" + divId("project-wrapper", projectId));
+                toggleProject(div, projectId);
+            }
+        }
     }
 
     /**
@@ -188,13 +281,20 @@ function WalterServerUI(walterServer, projectId, container) {
      * Create a project header
      * @param project
      */
-    function projectHeaderContainer(project) {
+    function projectHeader(project) {
         var w = div("project-header", project.ID);
 
         // build status
         $(w).append(
             group([
-                {item: div("project-heading").text(project.Project), width: "two thirds"},
+                {
+                    item: div("project-heading")
+                        .text(project.Project)
+                        .on("click", function () {
+                            toggleProject($(w).parent().parent(), project.ID)
+                        }),
+                    width: "two thirds"
+                },
                 {item: url(project.Repo), width: "one third align-right"}
             ])
         );
@@ -228,7 +328,8 @@ function WalterServerUI(walterServer, projectId, container) {
             group([
                     {item: left, width: "two thirds"},
                     {item: right, width: "one third"}
-                ]
+                ],
+                "row-indented"
             ));
 
         return w;
@@ -237,9 +338,9 @@ function WalterServerUI(walterServer, projectId, container) {
     /**
      * Create a project stage container
      * @param stage
-     * @param [expanded]
+     * @param [showDetails]
      */
-    function stageContainer(stage, expanded) {
+    function stageContainer(stage, showDetails) {
         var w = div("stage", stage.ID);
 
         $(w).append(
@@ -254,7 +355,7 @@ function WalterServerUI(walterServer, projectId, container) {
                 div()
                     .append(div("row").append(stage.Out == "" ? "" : div("console").append(div("pre").text(stage.Out))))
                     .append(div("row").append(stage.Err == "" ? "" : div("console-error").append(div("pre").text(stage.Err)))),
-                expanded
+                showDetails
             ));
 
         // add substages
@@ -262,7 +363,7 @@ function WalterServerUI(walterServer, projectId, container) {
             var subStages = div("indented");
             $(w).append(subStages);
             for (var i = 0; i < stage.Stages.length; i++) {
-                $(subStages).append(stageContainer(stage.Stages[i], expanded));
+                $(subStages).append(stageContainer(stage.Stages[i], showDetails));
             }
         }
         return w;
@@ -292,23 +393,26 @@ function WalterServerUI(walterServer, projectId, container) {
     /**
      * a button that will toggle the visiblilty of all collapsible children
      */
-    function collapser(parent, expanded) {
+    function collapser(projectID, parent, showDetails) {
+        showProjectDetails[projectID] = showDetails == true;
         return div("collapser")
-            .toggleClass("rotate-90", expanded == true)
+            .toggleClass("rotate-90", showDetails == true)
             .on("click", function () {
-                $(this).toggleClass("rotate-90");
-                $(parent).find(".walter-collapsible").toggle();
+                showProjectDetails[projectID] = !showProjectDetails[projectID];
+                var details = showProjectDetails[projectID];
+                $(this).toggleClass("rotate-90", details);
+                $(parent).find(".walter-collapsible").toggle(details);
             });
     }
 
     /**
      * Return a collapsible div with the given content
      * @param content
-     * @parma expanded
+     * @param [showDetails]
      */
-    function collapsible(content, expanded) {
+    function collapsible(content, showDetails) {
         var w = div("collapsible");
-        $(w).append(content).toggle(expanded == true);
+        $(w).append(content).toggle(showDetails == true);
         return w;
     }
 
@@ -373,29 +477,45 @@ function WalterServerUI(walterServer, projectId, container) {
             // iterate through projects
             for (var i = 0; i < history.length; i++) {
 
-                var existingPC = $("#" + divId("project", history[i].ID));
-                var expanded = $(existingPC).length && $(existingPC).find(".walter-collapsible").is(":visible");
-                var newPC = projectContainer(history[i], expanded);
+                var existingWrapper = $("#" + divId("project-wrapper", history[i].ID));
+                var newWrapper = projectWrapper(history[i]);
 
-                // if the project already exists, merge the new content, else append it
-                if ($(existingPC).length > 0) {
-                    $(existingPC).replaceWith(newPC);
+                // if the wrapper already exists, merge the new content, else append it
+                if ($(existingWrapper).length > 0) {
+                    $(existingWrapper).replaceWith(newWrapper);
                 }
                 else {
-                    $(block).append(newPC);
+                    $(block).append(newWrapper);
                 }
             }
         });
+
         // trap missing images
         $('.walter-avatar-icon').error(function () {
             $(this).attr('src', 'img/walter-default-avatar.png');
         });
+
         setTimeout(refresh, refreshSeconds * 1000);
+    }
+
+    /**
+     * Bind specific classes and ids to UI functions
+     */
+    function bindControls() {
+        $(".walter-expand-all").on("click", function () {
+            toggleProjects(true);
+        });
+        $(".walter-collapse-all").on("click", function () {
+            toggleProjects(false);
+        });
     }
 
     // intialize the container
     block = div("block");
     $(container).append(block);
+
+    // bind controls
+    bindControls();
 
     // refresh now
     refresh();

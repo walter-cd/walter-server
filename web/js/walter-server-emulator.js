@@ -4,6 +4,7 @@ function WalterServerEmulator() {
 
     // pretend to get some project history
     this.getProjectJSON = function (projectId) {
+
         if (!built) {
             built = true;
             return build();
@@ -18,8 +19,8 @@ function WalterServerEmulator() {
         '12:24:00  INFO a bit of steam visible\n' +
         '12:24:00  WARN getting a little hot now\n' +
         '12:24:00  WARN loud whistling sounds\n' +
-        '12:24:00 ERROR open ./pipeline.yml: no such file or directory\n' +
-        '12:24:00 ERROR failed to create Walter\n';
+        '12:24:00  ERROR open ./pipeline.yml: no such file or directory\n' +
+        '12:24:00  ERROR failed to create Walter\n';
     var outExample2 = '12:24:00  INFO this info message is to test the INFO message level"\n';
 
     // template of one build history element
@@ -180,7 +181,7 @@ function WalterServerEmulator() {
                 history.Stages[1].Stages[0].Start = now;
                 history.Stages[1].Stages[0].End = 0;
                 history.Stages[1].Stages[0].Status = "Running";
-                history.Stages[1].Stages[0].Out += "INFO Output at " + new Date() + "\n";
+                history.Stages[1].Stages[0].Out += "INFO   Output at " + new Date() + "\n";
                 history.Stages[2].Start = 0;
                 history.Stages[2].End = 0;
                 history.Stages[2].Status = "Pending";
@@ -198,7 +199,7 @@ function WalterServerEmulator() {
                 history.Stages[2].Start = now;
                 history.Stages[2].End = 0;
                 history.Stages[2].Status = "Running";
-                history.Stages[1].Out += "DEBUG Output at " + new Date() + "\n";
+                history.Stages[1].Out += "DEBUG  Output at " + new Date() + "\n";
 
                 break;
             case 3:
@@ -225,7 +226,7 @@ function WalterServerEmulator() {
                 history.Stages[0].Start = now - 5;
                 history.Stages[0].End = 0;
                 history.Stages[0].Status = "Running";
-                history.Stages[0].Out += "WARN Output at " + new Date() + "\n";
+                history.Stages[0].Out += "WARN   Output at " + new Date() + "\n";
                 history.Stages[1].Start = 0;
                 history.Stages[1].End = 0;
                 history.Stages[1].Status = "Pending";
