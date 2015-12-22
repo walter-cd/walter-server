@@ -6,12 +6,17 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 
+	"github.com/naoina/genmai"
 	"github.com/walter-cd/walter-server/db"
 )
 
-type Reports struct{}
+type Reports struct {
+	Reports []*Report
+	NextId  int64
+}
 
 type Report struct {
 	Id          int64
@@ -58,12 +63,27 @@ func (t *Reports) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func getReport(w http.ResponseWriter, r *http.Request) {
+	res := &Reports{}
+
+	limit := 20
+
 	dh := db.GetHandler()
 
-	var reports []db.Report
-	dh.Select(&reports)
+	cond := dh.OrderBy("id", genmai.DESC).Limit(limit + 1)
 
-	var res []*Report
+	maxId, _ := strconv.Atoi(r.FormValue("maxId"))
+	if maxId > 0 {
+		cond = cond.Where("Id", "<=", maxId)
+	}
+
+	var reports []db.Report
+
+	dh.Select(&reports, cond)
+
+	if len(reports) > limit {
+		res.NextId = reports[limit].Id
+		reports = reports[:len(reports)-1]
+	}
 
 	for _, report := range reports {
 		r := &Report{
@@ -127,7 +147,7 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 			r.Stages = append(r.Stages, s)
 		}
 
-		res = append(res, r)
+		res.Reports = append(res.Reports, r)
 	}
 
 	b, _ := json.Marshal(res)
