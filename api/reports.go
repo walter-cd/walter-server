@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -68,17 +69,35 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 	limit := 20
 
 	dh := db.GetHandler()
+	//dh.SetLogOutput(os.Stdout)
 
-	cond := dh.OrderBy("id", genmai.DESC).Limit(limit + 1)
+	order := dh.OrderBy("id", genmai.DESC).Limit(limit + 1)
+
+	where := &genmai.Condition{}
+	re := regexp.MustCompile(`^/api/v1/reports/(\d+)$`)
+
+	projectId := ""
+	if m := re.FindStringSubmatch(r.URL.Path); m != nil {
+		projectId = m[1]
+	}
+
+	if projectId != "" {
+		//id, _ := strconv.Atoi(projectId)
+		where = dh.Where("project_id", "=", projectId)
+	}
 
 	maxId, _ := strconv.Atoi(r.FormValue("maxId"))
 	if maxId > 0 {
-		cond = cond.Where("Id", "<=", maxId)
+		if projectId == "" {
+			where = dh.Where("id", "<=", maxId)
+		} else {
+			where = where.And(dh.Where("id", "<=", maxId))
+		}
 	}
 
 	var reports []db.Report
 
-	dh.Select(&reports, cond)
+	dh.Select(&reports, where, order)
 
 	if len(reports) > limit {
 		res.NextId = reports[limit].Id
