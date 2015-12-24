@@ -1,12 +1,17 @@
 function WalterServer() {
 
-    this.walterServer = new WalterServerEmulator();
     this.getProjectHistory = function (projectId, callback) {
-        var json = this.walterServer.getProjectJSON(projectId);
-        // emulate server call
-        if (callback) {
-            callback(json);
-        }
+        jQuery.getJSON("/api/v1/reports",
+            {
+                projectId: projectId,
+                maxId: 100000
+            },
+            function (data, status) {
+                if (data && data.Reports && callback) {
+                    callback(data.Reports);
+                }
+            }
+        );
     }
 
 }

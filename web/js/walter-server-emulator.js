@@ -26,7 +26,7 @@ function WalterServerEmulator() {
     // template of one build history element
     var jsonTemplate =
     {
-        ID: 123,
+        Id: 123,
         Project: "walter-cd/walter-server",
         Status: "Passed",
         Start: 1449062903,
@@ -34,11 +34,11 @@ function WalterServerEmulator() {
         Repo: "github.com/walter-cd/walter-server",
         Branch: "master",
         Commits: [
-            //{ID: 123, Revision: "203", Author: "gerryhocks", Message: "Some changes"},
+            //{Id: 123, Revision: "203", Author: "gerryhocks", Message: "Some changes"},
         ],
         Stages: [
             {
-                ID: 124,
+                Id: 124,
                 Name: "command_stage_1",
                 Status: "Passed",
                 Start: 1449062903,
@@ -48,7 +48,7 @@ function WalterServerEmulator() {
                 Stages: []
             },
             {
-                ID: 125,
+                Id: 125,
                 Name: "build_thing",
                 Status: "Passed",
                 Start: 1449062903,
@@ -57,7 +57,7 @@ function WalterServerEmulator() {
                 Err: "",
                 Stages: [
                     {
-                        ID: 126,
+                        Id: 126,
                         Name: "build_thing_substage_1",
                         Status: "Passed",
                         Start: 1449062903,
@@ -69,7 +69,7 @@ function WalterServerEmulator() {
                 ]
             },
             {
-                ID: 127,
+                Id: 127,
                 Name: "package_product",
                 Status: "Passed",
                 Start: 1449062903,
@@ -112,7 +112,7 @@ function WalterServerEmulator() {
             var commitCount = Math.floor(Math.random() * 3) + 1;
             for (var j = 0; j < commitCount; j++) {
                 history.Commits.push({
-                    ID: subid++,
+                    Id: subid++,
                     Revision: revision++,
                     Author: pick(["mizzy", "takahi-i", "cmoen", "gerryhocks"]),
                     Message: pick(["Some changes", "Fixing previous errors", "Added new feature", "Updated documentation"])
@@ -125,7 +125,7 @@ function WalterServerEmulator() {
             var duration1 = Math.floor(Math.random() * 900);
             var duration2 = Math.floor(Math.random() * 800);
 
-            history.ID = id++;
+            history.Id = id++;
             history.Project = pick(["walter-cd/walter-server", "walter-cd/walter", "redpen-cc/redpen"]);
             history.Branch = pick(["master", "next-gen", "alpha"]);
 
@@ -140,7 +140,7 @@ function WalterServerEmulator() {
             history.Start = startTime;
             history.End = running ? now : startTime + duration1 + duration2;
 
-            history.Stages[0].ID = subid++;
+            history.Stages[0].Id = subid++;
             history.Stages[0].Start = startTime;
             history.Stages[0].End = startTime + duration1;
             history.Stages[1].Start = history.Stages[0].End;
@@ -149,7 +149,7 @@ function WalterServerEmulator() {
             history.Stages[2].Start = 0;
             history.Stages[2].End = 0;
             history.Stages[2].Status = "Pending";
-            history.Stages[1].Stages[0].ID = subid++;
+            history.Stages[1].Stages[0].Id = subid++;
             history.Stages[1].Stages[0].Start = history.Stages[1].Start;
             history.Stages[1].Stages[0].End = running ? 0 : history.Stages[1].End;
             history.Stages[1].Stages[0].Status = running ? "Running" : ( passed ? "Passed" : "Failed");

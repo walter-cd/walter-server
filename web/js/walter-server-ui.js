@@ -129,16 +129,16 @@ function WalterServerUI(walterServer, projectId, container) {
      */
     function projectWrapper(project) {
 
-        var w = div("project-wrapper", project.ID);
+        var w = div("project-wrapper", project.Id);
 
-        if (showProjectExpanded[project.ID] == undefined) {
-            showProjectExpanded[project.ID] = false;
+        if (showProjectExpanded[project.Id] == undefined) {
+            showProjectExpanded[project.Id] = false;
         }
 
-        var expanded = showProjectExpanded[project.ID] == true;
+        var expanded = showProjectExpanded[project.Id] == true;
 
         $(w).append(projectSummary(project).toggle(!expanded));
-        $(w).append(projectDetail(project, showProjectDetails[project.ID]).toggle(expanded));
+        $(w).append(projectDetail(project, showProjectDetails[project.Id]).toggle(expanded));
 
         return w;
     }
@@ -150,11 +150,11 @@ function WalterServerUI(walterServer, projectId, container) {
      * @param [showDetails]
      */
     function projectDetail(project, showDetails) {
-        var w = div("project-detail", project.ID);
+        var w = div("project-detail", project.Id);
 
         $(w).append(projectHeader(project));
         if (project.Stages && project.Stages.length) {
-            $(w).append(div("right").append(collapser(project.ID, $(w), showDetails)));
+            $(w).append(div("right").append(collapser(project.Id, $(w), showDetails)));
             var stages = div("row-indented");
             for (var i = 0; i < project.Stages.length; i++) {
                 $(stages).append(stageContainer(project.Stages[i], showDetails));
@@ -171,8 +171,8 @@ function WalterServerUI(walterServer, projectId, container) {
      */
     function projectSummary(project) {
 
-        var w = div("project-summary", project.ID).on("click", function () {
-            toggleProject($(this).parent(), project.ID)
+        var w = div("project-summary", project.Id).on("click", function () {
+            toggleProject($(this).parent(), project.Id)
         });
 
         var timing = div("");
@@ -191,7 +191,7 @@ function WalterServerUI(walterServer, projectId, container) {
                     item: div().append(
                         status(project.Status,
                             div("inline")
-                                .append(" #" + project.ID + ' ' + project.Status + ' on ')
+                                .append(" #" + project.Id + ' ' + project.Status + ' on ')
                                 .append(div("branch-icon"))
                                 .append(" " + project.Branch))),
                     width: "two sixths"
@@ -245,7 +245,7 @@ function WalterServerUI(walterServer, projectId, container) {
                             {item: div().text(commit.Message), width: "seven tenths"}
                         ],
                         "commit",
-                        commit.ID
+                        commit.Id
                     ));
             }
         }
@@ -282,7 +282,7 @@ function WalterServerUI(walterServer, projectId, container) {
      * @param project
      */
     function projectHeader(project) {
-        var w = div("project-header", project.ID);
+        var w = div("project-header", project.Id);
 
         // build status
         $(w).append(
@@ -291,7 +291,7 @@ function WalterServerUI(walterServer, projectId, container) {
                     item: div("project-heading")
                         .text(project.Project)
                         .on("click", function () {
-                            toggleProject($(w).parent().parent(), project.ID)
+                            toggleProject($(w).parent().parent(), project.Id)
                         }),
                     width: "two thirds"
                 },
@@ -305,7 +305,7 @@ function WalterServerUI(walterServer, projectId, container) {
             .append(div("large").append(
                 status(project.Status,
                     div("inline")
-                        .append(" #" + project.ID + ' ' + project.Status + ' on ')
+                        .append(" #" + project.Id + ' ' + project.Status + ' on ')
                         .append(div("branch-icon"))
                         .append(" " + project.Branch)))
             )
@@ -341,7 +341,7 @@ function WalterServerUI(walterServer, projectId, container) {
      * @param [showDetails]
      */
     function stageContainer(stage, showDetails) {
-        var w = div("stage", stage.ID);
+        var w = div("stage", stage.Id);
 
         $(w).append(
             group([
@@ -477,7 +477,7 @@ function WalterServerUI(walterServer, projectId, container) {
             // iterate through projects
             for (var i = 0; i < history.length; i++) {
 
-                var existingWrapper = $("#" + divId("project-wrapper", history[i].ID));
+                var existingWrapper = $("#" + divId("project-wrapper", history[i].Id));
                 var newWrapper = projectWrapper(history[i]);
 
                 // if the wrapper already exists, merge the new content, else append it
