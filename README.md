@@ -84,12 +84,12 @@ Location:
 
 ----
 
-### GET /api/v1/reports?maxId=XXX
+### GET /api/v1/reports?count=XXXXX&until=YYYYY
 
 #### Request
 
 ```
-GET /api/v1/reports?maxId=XXX
+GET /api/v1/reports?count=XXXXX&until=YYYYY
 ```
 
 #### Reponse
@@ -164,18 +164,18 @@ GET /api/v1/reports?maxId=XXX
       }
     }
   ],
-  "NextId": 0
+  "NextStart": 1440247583
 }
 ```
 
 ---
 
-### GET /api/v1/reports/:projectId?maxId=XXX
+### GET /api/v1/reports/:projectId?count=XXXXX&until=YYYYY
 
 #### Request
 
 ```
-GET /api/v1/reports/1?maxId=XXX
+GET /api/v1/reports/1?count=XXXXX&until=YYYYY
 ```
 
 #### Reponse
@@ -402,6 +402,6 @@ GET /api/v1/reports/1?maxId=XXX
       }
     }
   ],
-  "NextId": 0
+  "NextStart": 0
 }
 ```

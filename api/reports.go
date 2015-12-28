@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"regexp"
 	"strconv"
 	"time"
@@ -15,8 +16,8 @@ import (
 )
 
 type Reports struct {
-	Reports []*Report
-	NextId  int64
+	Reports   []*Report
+	NextStart int64
 }
 
 type Report struct {
@@ -67,11 +68,14 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 	res := &Reports{}
 
 	limit := 20
+	if r.FormValue("count") != "" {
+		limit, _ = strconv.Atoi(r.FormValue("count"))
+	}
 
 	dh := db.GetHandler()
-	//dh.SetLogOutput(os.Stdout)
+	dh.SetLogOutput(os.Stdout)
 
-	order := dh.OrderBy("id", genmai.DESC).Limit(limit + 1)
+	order := dh.OrderBy("start", genmai.DESC).Limit(limit + 1)
 
 	where := &genmai.Condition{}
 	re := regexp.MustCompile(`^/api/v1/reports/(\d+)$`)
@@ -85,12 +89,12 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 		where = dh.Where("project_id", "=", projectId)
 	}
 
-	maxId, _ := strconv.Atoi(r.FormValue("maxId"))
-	if maxId > 0 {
+	until, _ := strconv.ParseInt(r.FormValue("until"), 10, 64)
+	if until > 0 {
 		if projectId == "" {
-			where = dh.Where("id", "<=", maxId)
+			where = dh.Where("start", "<=", time.Unix(until, 0))
 		} else {
-			where = where.And(dh.Where("id", "<=", maxId))
+			where = where.And(dh.Where("start", "<=", time.Unix(until, 0)))
 		}
 	}
 
@@ -99,7 +103,7 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 	dh.Select(&reports, where, order)
 
 	if len(reports) > limit {
-		res.NextId = reports[limit].Id
+		res.NextStart = reports[limit].Start.Unix()
 		reports = reports[:len(reports)-1]
 	}
 
