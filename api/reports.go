@@ -82,7 +82,6 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if projectId != "" {
-		//id, _ := strconv.Atoi(projectId)
 		where = dh.Where("project_id", "=", projectId)
 	}
 
