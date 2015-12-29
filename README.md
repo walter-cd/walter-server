@@ -92,6 +92,14 @@ Location:
 GET /api/v1/reports?count=XXXXX&until=YYYYY
 ```
 
+| Parameter | Description |
+|-----------|-------------|
+|count | API returns this number of reports at most.  |
+|since|  API returns reports that start time of which are after this parameter (Unix time by seconds) . |
+|until| API returns reports that start time of which are before this parameter (Unix time by seconds) . |
+|status| API returs reports that the status of which are this parameter(Passed, Failed, Running or Pending) . |
+
+
 #### Reponse
 
 ```json
@@ -177,6 +185,13 @@ GET /api/v1/reports?count=XXXXX&until=YYYYY
 ```
 GET /api/v1/reports/1?count=XXXXX&until=YYYYY
 ```
+
+| Parameter | Description |
+|-----------|-------------|
+|count | API returns this number of reports at most.  |
+|since|  API returns reports that start time of which are after this parameter (Unix time by seconds) . |
+|until| API returns reports that start time of which are before this parameter (Unix time by seconds) . |
+|status| API returs reports that the status of which are this parameter(Passed, Failed, Running or Pending) . |
 
 #### Reponse
 

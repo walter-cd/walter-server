@@ -77,7 +77,8 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 
 	order := dh.OrderBy("start", genmai.DESC).Limit(limit + 1)
 
-	where := &genmai.Condition{}
+	var cond [][]interface{}
+
 	re := regexp.MustCompile(`^/api/v1/reports/(\d+)$`)
 
 	projectId := ""
@@ -86,15 +87,29 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if projectId != "" {
-		where = dh.Where("project_id", "=", projectId)
+		cond = append(cond, []interface{}{"project_id", "=", projectId})
 	}
 
-	until, _ := strconv.ParseInt(r.FormValue("until"), 10, 64)
-	if until > 0 {
-		if projectId == "" {
-			where = dh.Where("start", "<=", time.Unix(until, 0))
+	if until := r.FormValue("until"); until != "" {
+		u, _ := strconv.ParseInt(until, 10, 64)
+		cond = append(cond, []interface{}{"start", "<=", time.Unix(u, 0)})
+	}
+
+	if since := r.FormValue("since"); since != "" {
+		s, _ := strconv.ParseInt(since, 10, 64)
+		cond = append(cond, []interface{}{"start", ">=", time.Unix(s, 0)})
+	}
+
+	if status := r.FormValue("status"); status != "" {
+		cond = append(cond, []interface{}{"status", "=", status})
+	}
+
+	where := &genmai.Condition{}
+	for i, c := range cond {
+		if i < 1 {
+			where = dh.Where(c[0], c[1], c[2])
 		} else {
-			where = where.And(dh.Where("start", "<=", time.Unix(until, 0)))
+			where = where.And(dh.Where(c[0], c[1], c[2]))
 		}
 	}
 
