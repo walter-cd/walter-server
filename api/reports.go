@@ -168,6 +168,9 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 		res.Reports = append(res.Reports, r)
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
 	b, _ := json.Marshal(res)
 	fmt.Fprint(w, string(b))
 }
