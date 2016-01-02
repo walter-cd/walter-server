@@ -37,6 +37,7 @@ func main() {
 
 	r := &RegexpHandler{}
 	r.Handler(regexp.MustCompile(`^/api/v1/reports(/.*)?$`), &api.Reports{})
+	r.Handler(regexp.MustCompile(`^/api/v1/jobs(/.*)?$`), &api.Jobs{})
 	http.Handle("/", r)
 
 	if err := http.ListenAndServe(*host, nil); err != nil {
