@@ -102,7 +102,7 @@ define_method(:generate_report) do |running|
 
   template['Project']['Name'] = pick(%w(walter-cd/walter-server walter-cd/walter redpen-cc/redpen))
 
-  template['Project']['Repo'] = 'https://github.com/' + template['Project']['Repo']
+  template['Project']['Repo'] = 'https://github.com/' + template['Project']['Name']
   
   template['Branch'] = pick(%w(master next-gen alpha))
 
