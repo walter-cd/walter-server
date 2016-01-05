@@ -20,9 +20,11 @@ POST /api/v1/reports
 Content-Type: application/json
 
 {
-  "project": "walter-server",
+  "project": {
+    "name": "walter-server",
+    "repo": "https://github.com/walter-cd/walter-server"
+  },
   "status": "fail",
-  "repo": "https://github.com/walter-cd/walter-server",
   "branch": "master",
   "commits": [
     {
@@ -107,9 +109,12 @@ GET /api/v1/reports?count=XXXXX&until=YYYYY
   "Reports": [
     {
       "Id": 2,
-      "Project": "walter-cd/walter",
+      "Project": {
+        "Name" => "walter-cd/walter",
+        "Repo": "https://github.com/walter-cd/walter",
+      },
       "Status": "Failed",
-      "Repo": "https://github.com/walter-cd/walter",
+
       "Branch": "alpha",
       "Commits": [
         {
@@ -140,9 +145,11 @@ GET /api/v1/reports?count=XXXXX&until=YYYYY
     },
     {
       "Id": 1,
-      "Project": "walter-cd/walter-server",
+      "Project": {
+        "Name": "walter-cd/walter-server",
+        "Repo": "https://github.com/walter-cd/walter-server"
+      },
       "Status": "Passed",
-      "Repo": "https://github.com/walter-cd/walter-server",
       "Branch": "alpha",
       "Commits": [
         {
@@ -200,9 +207,11 @@ GET /api/v1/reports/1?count=XXXXX&until=YYYYY
   "Reports": [
     {
       "Id": 6,
-      "Project": "walter-cd/walter-server",
+      "Project": {
+        "Name": "walter-cd/walter-server",
+        "Repo": "https://github.com/walter-cd/walter-server"
+      },
       "Status": "Passed",
-      "Repo": "https://github.com/walter-cd/walter-server",
       "Branch": "alpha",
       "Commits": [
         {
@@ -271,9 +280,11 @@ GET /api/v1/reports/1?count=XXXXX&until=YYYYY
     },
     {
       "Id": 3,
-      "Project": "walter-cd/walter-server",
+      "Project": {
+        "Name": "walter-cd/walter-server",
+        "Repo": "https://github.com/walter-cd/walter-server"
+      },
       "Status": "Passed",
-      "Repo": "https://github.com/walter-cd/walter-server",
       "Branch": "master",
       "Commits": [
         {
@@ -347,9 +358,11 @@ GET /api/v1/reports/1?count=XXXXX&until=YYYYY
     },
     {
       "Id": 1,
-      "Project": "walter-cd/walter-server",
+      "Project": {
+        "Name": "walter-cd/walter-server",
+        "Repo": "https://github.com/walter-cd/walter-server"
+      },
       "Status": "Passed",
-      "Repo": "https://github.com/walter-cd/walter-server",
       "Branch": "alpha",
       "Commits": [
         {

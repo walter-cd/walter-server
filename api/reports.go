@@ -22,9 +22,8 @@ type Reports struct {
 
 type Report struct {
 	Id          int64
-	Project     string
+	Project     *Project
 	Status      string
-	Repo        string
 	Branch      string
 	Commits     []*Commit
 	Stages      []*Stage
@@ -32,6 +31,12 @@ type Report struct {
 	Start       int64
 	End         int64
 	TriggeredBy User
+}
+
+type Project struct {
+	Id   int64
+	Name string
+	Repo string
 }
 
 type Commit struct {
@@ -136,8 +141,11 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 		dh.Select(&projects, dh.Where("id", "=", report.ProjectId))
 		project := projects[0]
 
-		r.Project = project.Name
-		r.Repo = project.Repo
+		r.Project = &Project{
+			Id:   project.Id,
+			Name: project.Name,
+			Repo: project.Repo,
+		}
 
 		var commits []db.Commit
 		dh.Select(&commits, dh.Where("report_id", "=", report.Id))
@@ -209,13 +217,13 @@ func createReport(w http.ResponseWriter, r *http.Request) {
 
 	dh := db.GetHandler()
 	var projects []db.Project
-	if err := dh.Select(&projects, dh.Where("repo", "=", data.Repo)); err != nil {
+	if err := dh.Select(&projects, dh.Where("repo", "=", data.Project.Repo)); err != nil {
 		panic(err)
 	}
 
 	var projectId int64
 	if len(projects) == 0 {
-		project := &db.Project{Name: data.Project, Repo: data.Repo}
+		project := &db.Project{Name: data.Project.Name, Repo: data.Project.Repo}
 		dh.Insert(project)
 		projectId, _ = dh.LastInsertId()
 	} else {

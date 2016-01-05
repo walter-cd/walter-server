@@ -26,11 +26,13 @@ define_method(:generate_report) do |running|
   out_example_2 = '12:24:00  INFO this info message is to test the INFO message level"\n' ;
 
   template = {
-    'Project' => 'walter-cd/walter-server',
+    'Project' => {
+      'Name' => 'walter-cd/walter-server',
+      'Repo' => 'github.com/walter-cd/walter-server',
+    },
     'Status' => 'Passed',
     'Start' => 1449062903,
     'End' => 1449062940,
-    'Repo' => 'github.com/walter-cd/walter-server',
     'Branch' => 'master',
     'Commits' => [
       # {Revision: "203", Author: "gerryhocks", Message: "Some changes"},
@@ -98,9 +100,9 @@ define_method(:generate_report) do |running|
   duration1 = (rand * 900).to_i
   duration2 = (rand * 800).to_i
 
-  template['Project'] = pick(%w(walter-cd/walter-server walter-cd/walter redpen-cc/redpen))
+  template['Project']['Name'] = pick(%w(walter-cd/walter-server walter-cd/walter redpen-cc/redpen))
 
-  template['Repo'] = 'https://github.com/' + template['Project']
+  template['Project']['Repo'] = 'https://github.com/' + template['Project']['Repo']
   
   template['Branch'] = pick(%w(master next-gen alpha))
 
