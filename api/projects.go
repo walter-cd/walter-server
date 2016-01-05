@@ -31,7 +31,13 @@ func (p *Projects) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if projectId != "" {
 		dh.Select(&projects, dh.Where("id", "=", projectId))
 		if len(projects) > 0 {
-			b, _ := json.Marshal(projects[0])
+			p := projects[0]
+			res := &Project{
+				Id:   p.Id,
+				Name: p.Name,
+				Repo: p.Repo,
+			}
+			b, _ := json.Marshal(res)
 			fmt.Fprint(w, string(b))
 		} else {
 			w.WriteHeader(http.StatusNotFound)
