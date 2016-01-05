@@ -3,19 +3,21 @@
  * will be built in the container, or a new container created if container is null
  *
  * @param walterServer
- * @param projectId
  * @param container
  * @constructor
  */
-function WalterServerUI(walterServer, projectId, container) {
+function WalterServerUI(walterServer, container) {
 
     /* seconds between refreshes */
-    var refreshSeconds = 5;
-
-    /* tracks which projects are showing details */
-    var showProjectDetails = {};
-    /* tracks which projects are showDetails */
-    var showProjectExpanded = {};
+    var refreshSeconds = 8;
+    /* the navigation option for the active project */
+    var projectNavigatorOption;
+    /* the navigation option for the active report */
+    var reportNavigatorOption;
+    /* current project being shown */
+    var currentProject;
+    /* a handle on the refresh timer */
+    var refreshTimer = 0;
 
     /* div templates to reduce markup-in-code and put framework dependencies closer together */
     var divTemplates = {
@@ -23,24 +25,27 @@ function WalterServerUI(walterServer, projectId, container) {
         "inline": {classes: ["inline"]},
         "row": {classes: ["row"]},
         "row-indented": {classes: ["row double-pad-left"]},
+        "row-fixed-height": {classes: ["row", "walter-row-fixed-height"]},
         "block": {classes: ["container"]},
         "url": {tag: "<a></a>"},
         "right": {classes: ["row align-right"]},
-        "vertical-space": {tag: "<hr/>"},
-        "indented": {classes: ["double-pad-left"]},
-        "project-wrapper": {},
-        "project-detail": {classes: ["row double-pad-bottom"]},
-        "project-header": {classes: ["pad-bottom"]},
-        "project-heading": {tag: "<h4/>", classes: ["walter-project-heading walter-pointer"]},
-        "project-summary": {classes: ["walter-pointer "]},
-        "project-summary-heading": {tag: "<h4/>", classes: ["walter-project-heading"]},
+        "line": {tag: "<hr/>"},
+        "report-wrapper": {},
+        "report-detail": {classes: ["row double-pad-bottom"]},
+        "report-heading": {classes: ["double-pad-bottom"]},
+        "report-heading-text": {tag: "<h3/>", classes: ["walter-report-heading-text walter-pointer"]},
+        "report-summary": {classes: ["walter-pointer "]},
+        "report-summary-heading": {tag: "<h4/>", classes: ["walter-report-heading-text"]},
+        "project-info": {classes: ["walter-pointer "]},
+        "project-info-heading": {tag: "<h4/>", classes: ["walter-report-heading-text"]},
         "large": {tag: "<h4/>"},
-        "stage": {classes: ["row"]},
+        "stage": {classes: ["row pad-bottom"]},
+        "substage": {classes: ["row double-pad-left pad-top"]},
         "clock-icon": {classes: ["icon-time inline", "walter-color-faded"]},
         "empty-time": {classes: ["inline"]},
         "branch-icon": {classes: ["icon-code-fork inline"]},
-        "console": {tag: "<code/>", classes: ["box one whole square", "walter-console"]},
-        "console-error": {tag: "<code/>", classes: ["box one whole square", "walter-console-error"]},
+        "console": {tag: "<code/>", classes: ["box one whole square double-pad-top double-pad-bottom", "walter-console"]},
+        "console-error": {tag: "<code/>", classes: ["box one whole square double-pad-top double-pad-bottom", "walter-console-error"]},
         "pre": {tag: "<pre/>"},
         "commits": {classes: ["square"]},
         "commit": {classes: ["row"]},
@@ -55,12 +60,19 @@ function WalterServerUI(walterServer, projectId, container) {
         "status-failed": {classes: ["error inline"]},
         "status-running": {classes: ["question inline"]},
         "status-pending": {classes: ["walter-color-grey inline"]},
-        "collapsible": {},
-        "collapser": {classes: ["icon-chevron-right inline info walter-pointer"]}
+        "navigator": {classes: ["double-pad-bottom", "walter-navigator"]},
+        "navigator-option-activity": {tag: "<h3/>", classes: ["inline double-pad-right", "walter-pointer"]},
+        "navigator-option-projects": {tag: "<h3/>", classes: ["inline double-pad-right", "walter-pointer"]},
+        "navigator-option-project": {tag: "<h3/>", classes: ["inline pad-right", "walter-pointer"]},
+        "navigator-option-report": {tag: "<h3/>", classes: ["inline", "walter-pointer"]},
+        "no-results": {
+            tag: "<h3/>",
+            classes: ["align-center one centered mobile third double-pad-top double-pad-bottom", "walter-color-faded walter-color-grey"]
+        }
     };
 
     // the inner block
-    var block;
+    var block = div("block");
 
     /**
      * Create and style a wrapper div using the named template
@@ -124,40 +136,18 @@ function WalterServerUI(walterServer, projectId, container) {
     }
 
     /**
-     * A div that wraps a summary and detail project display
-     * @param project
+     * Populate a report build details
+     * @param report
      */
-    function projectWrapper(project) {
+    function reportDetails(report) {
+        var w = div("report-detail", report.Id);
 
-        var w = div("project-wrapper", project.Id);
+        $(w).append(reportHeader(report));
 
-        if (showProjectExpanded[project.Id] == undefined) {
-            showProjectExpanded[project.Id] = false;
-        }
-
-        var expanded = showProjectExpanded[project.Id] == true;
-
-        $(w).append(projectSummary(project).toggle(!expanded));
-        $(w).append(projectDetail(project, showProjectDetails[project.Id]).toggle(expanded));
-
-        return w;
-    }
-
-
-    /**
-     * Populate a project details div
-     * @param project
-     * @param [showDetails]
-     */
-    function projectDetail(project, showDetails) {
-        var w = div("project-detail", project.Id);
-
-        $(w).append(projectHeader(project));
-        if (project.Stages && project.Stages.length) {
-            $(w).append(div("right").append(collapser(project.Id, $(w), showDetails)));
-            var stages = div("row-indented");
-            for (var i = 0; i < project.Stages.length; i++) {
-                $(stages).append(stageContainer(project.Stages[i], showDetails));
+        if (report.Stages && report.Stages.length) {
+            var stages = div("row");
+            for (var i = 0; i < report.Stages.length; i++) {
+                $(stages).append(stageContainer(report.Stages[i]));
             }
             $(w).append(stages);
         }
@@ -166,65 +156,65 @@ function WalterServerUI(walterServer, projectId, container) {
     }
 
     /**
-     * Populate a project summary
-     * @param project
+     * Populate a project's build summary
+     * @param report
      */
-    function projectSummary(project) {
+    function reportSummary(report) {
 
-        var w = div("project-summary", project.Id).on("click", function () {
-            toggleProject($(this).parent(), project.Id)
+        var w = div("report-summary", report.Id).on("click", function () {
+            showReport(report);
         });
 
         var timing = div("");
-        if (project.End) {
+        if (report.End) {
             $(timing)
-                .append(humanifyTime(now() - project.Start))
+                .append(humanifyTime(now() - report.Start))
                 .append(" ago");
         } else {
-            $(timing).append(duration(project.Start, project.End));
+            $(timing).append(duration(report.Start, report.End));
         }
 
         $(w).append(
             group([
-                {item: div("project-summary-heading").text(project.Project), width: "two sixths"},
+                {item: div("report-summary-heading").text(report.Project.Name), width: "two sixths"},
                 {
                     item: div().append(
-                        status(project.Status,
+                        status(report.Status,
                             div("inline")
-                                .append(" #" + project.Id + ' ' + project.Status + ' on ')
+                                .append(formatReportId(report.Id) + ' ' + report.Status + ' on ')
                                 .append(div("branch-icon"))
-                                .append(" " + project.Branch))),
+                                .append(" " + report.Branch))),
                     width: "two sixths"
                 },
-                {item: user(project.TriggeredBy), width: "one sixth"},
+                {item: user(report.TriggeredBy), width: "one sixth"},
                 {item: timing, width: "one sixth align-right"}
 
-            ])
+            ],
+            "row-fixed-height")
         );
 
         return w;
     }
 
     /**
-     * Expand/collapse a project node
-     * @parma projectId
+     * Populate a project info
+     * @param project
      */
-    function toggleProject(div, projectId) {
-        showProjectExpanded[projectId] = showProjectExpanded[projectId] ? false : true;
+    function projectInfo(project) {
 
-        var summary = $(div).find("#" + divId("project-summary", projectId));
-        var details = $(div).find("#" + divId("project-detail", projectId));
-        $(summary).toggle(!showProjectExpanded[projectId]);
-        $(details).toggle(showProjectExpanded[projectId]);
-    }
+        var w = div("project-info", project.Id).on("click", function () {
+            $(block).empty();
+            showProject(project);
+        });
 
-    function toggleProjects(expand) {
-        for (var projectId in showProjectExpanded) {
-            if (showProjectExpanded[projectId] != expand) {
-                var div = $(block).find("#" + divId("project-wrapper", projectId));
-                toggleProject(div, projectId);
-            }
-        }
+        $(w).append(
+            group([
+                {item: div("project-info-heading").text(project.Name), width: "four sixths"},
+                {item: url(project.Repo), width: "two sixths align-right"}
+            ])
+        );
+
+        return w;
     }
 
     /**
@@ -278,50 +268,50 @@ function WalterServerUI(walterServer, projectId, container) {
     }
 
     /**
-     * Create a project header
-     * @param project
+     * Create a project report header
+     * @param report
      */
-    function projectHeader(project) {
-        var w = div("project-header", project.Id);
+    function reportHeader(report) {
+        var w = div("report-heading", report.Id);
 
         // build status
         $(w).append(
             group([
                 {
-                    item: div("project-heading")
-                        .text(project.Project)
+                    item: div("report-heading-text")
+                        .text(report.Project.Name)
                         .on("click", function () {
-                            toggleProject($(w).parent().parent(), project.Id)
+                            showProject(report.Project);
                         }),
                     width: "two thirds"
                 },
-                {item: url(project.Repo), width: "one third align-right"}
-            ])
+                {item: url(report.Project.Repo), width: "one third align-right"}
+            ],
+            "row-fixed-height")
         );
-
 
         // LHS
         var left = div()
             .append(div("large").append(
-                status(project.Status,
+                status(report.Status,
                     div("inline")
-                        .append(" #" + project.Id + ' ' + project.Status + ' on ')
+                        .append(formatReportId(report.Id) + ' ' + report.Status + ' on ')
                         .append(div("branch-icon"))
-                        .append(" " + project.Branch)))
+                        .append(" " + report.Branch)))
             )
-            .append(div("url").attr("href", project.CompareUrl).text("show changes"))
-            .append(commits(project.Commits));
+            .append(div("url").attr("href", report.CompareUrl).text("show changes"))
+            .append(commits(report.Commits));
 
         // RHS
         var right = div();
-        if (project.End) {
-            $(right).append(div("right").append(duration(project.Start, project.End)));
+        if (report.End) {
+            $(right).append(div("right").append(duration(report.Start, report.End)));
         }
         $(right).append(
             div("right")
-                .append(humanifyTime(now() - project.Start))
+                .append(humanifyTime(now() - report.Start))
                 .append(" ago by ")
-                .append(user(project.TriggeredBy))
+                .append(user(report.TriggeredBy))
         );
 
         $(w).append(
@@ -329,7 +319,7 @@ function WalterServerUI(walterServer, projectId, container) {
                     {item: left, width: "two thirds"},
                     {item: right, width: "one third"}
                 ],
-                "row-indented"
+                "row"
             ));
 
         return w;
@@ -338,9 +328,8 @@ function WalterServerUI(walterServer, projectId, container) {
     /**
      * Create a project stage container
      * @param stage
-     * @param [showDetails]
      */
-    function stageContainer(stage, showDetails) {
+    function stageContainer(stage) {
         var w = div("stage", stage.Id);
 
         $(w).append(
@@ -351,21 +340,92 @@ function WalterServerUI(walterServer, projectId, container) {
                 },
                 {item: div().append(duration(stage.Start, stage.End)), width: "one half align-right"}
             ]))
-            .append(collapsible(
+            .append(
                 div()
                     .append(div("row").append(stage.Out == "" ? "" : div("console").append(div("pre").text(stage.Out))))
-                    .append(div("row").append(stage.Err == "" ? "" : div("console-error").append(div("pre").text(stage.Err)))),
-                showDetails
-            ));
+                    .append(div("row").append(stage.Err == "" ? "" : div("console-error").append(div("pre").text(stage.Err))))
+            );
 
         // add substages
         if (stage.Stages && stage.Stages.length) {
-            var subStages = div("indented");
+            var subStages = div("substage");
             $(w).append(subStages);
             for (var i = 0; i < stage.Stages.length; i++) {
-                $(subStages).append(stageContainer(stage.Stages[i], showDetails));
+                $(subStages).append(stageContainer(stage.Stages[i]));
             }
         }
+        return w;
+    }
+
+    function navigator() {
+        var w = div("navigator");
+
+
+        var selectNavigator = function (me) {
+            $(me).siblings().removeClass("walter-navigator-selected");
+            $(me).addClass("walter-navigator-selected");
+            $(projectNavigatorOption).toggle((me == projectNavigatorOption) || (me == reportNavigatorOption));
+            $(reportNavigatorOption).toggle(me == reportNavigatorOption);
+        };
+
+        projectNavigatorOption = div("navigator-option-project")
+            .text("")
+            .bind("click", function () {
+                cancelRefreshTimer();
+                selectNavigator(projectNavigatorOption);
+                $(block).empty();
+
+                if (currentProject) {
+                    walterServer.getProjectHistory(currentProject.Id, {}, function (history) {
+                        if (history) {
+                            for (var i = 0; i < history.length; i++) {
+                                $(block).append(reportSummary(history[i]));
+                            }
+                        }
+                        else {
+                            $(block).empty().append(
+                                div("no-results").text("No build activity for this project")
+                            );
+                        }
+                    });
+
+                    // trap missing images
+                    $('.walter-avatar-icon').error(function () {
+                        $(this).attr('src', 'img/walter-default-avatar.png');
+                    });
+                }
+            })
+            .hide();
+
+        reportNavigatorOption = div("navigator-option-report")
+            .text("")
+            .bind("click", function () {
+                selectNavigator(reportNavigatorOption);
+            })
+            .hide();
+
+        $(w)
+            .append(
+                div("navigator-option-activity")
+                    .text("Activity")
+                    .bind("click", function () {
+                        selectNavigator(this);
+                        showActivity();
+                    })
+            )
+            .append(
+                div("navigator-option-projects")
+                    .text("Projects")
+                    .bind("click", function () {
+                        selectNavigator(this);
+                        showProjects();
+                    })
+            )
+            .append(projectNavigatorOption)
+            .append(reportNavigatorOption)
+            .append(div("line"))
+        ;
+
         return w;
     }
 
@@ -387,33 +447,6 @@ function WalterServerUI(walterServer, projectId, container) {
         return div('avatar')
             .append(div("avatar-icon").attr("src", userinfo.AvatarUrl))
             .append(div('avatar-label').text(userinfo.Name));
-    }
-
-
-    /**
-     * a button that will toggle the visiblilty of all collapsible children
-     */
-    function collapser(projectID, parent, showDetails) {
-        showProjectDetails[projectID] = showDetails == true;
-        return div("collapser")
-            .toggleClass("rotate-90", showDetails == true)
-            .on("click", function () {
-                showProjectDetails[projectID] = !showProjectDetails[projectID];
-                var details = showProjectDetails[projectID];
-                $(this).toggleClass("rotate-90", details);
-                $(parent).find(".walter-collapsible").toggle(details);
-            });
-    }
-
-    /**
-     * Return a collapsible div with the given content
-     * @param content
-     * @param [showDetails]
-     */
-    function collapsible(content, showDetails) {
-        var w = div("collapsible");
-        $(w).append(content).toggle(showDetails == true);
-        return w;
     }
 
     /**
@@ -463,61 +496,138 @@ function WalterServerUI(walterServer, projectId, container) {
         return seconds + " second" + (seconds == 1 ? "" : "s");
     }
 
+    /**
+     * Format a report id
+     * @param reportId
+     * @returns {string}
+     */
+    function formatReportId(reportId) {
+        var s = "000000000" + reportId;
+        return " #" + s.substr(s.length - 5);
+    }
 
+    /**
+     * current time in seconds
+     * @returns {number}
+     */
     function now() {
         return Math.floor(new Date().getTime() / 1000);
     }
 
 
     /**
-     * Refresh data from the server
+     * Show build info for a specific report
+     *
+     * @param report
      */
-    function refresh() {
-        walterServer.getProjectHistory(projectId, function (history) {
-            // iterate through projects
-            for (var i = 0; i < history.length; i++) {
-
-                var existingWrapper = $("#" + divId("project-wrapper", history[i].Id));
-                var newWrapper = projectWrapper(history[i]);
-
-                // if the wrapper already exists, merge the new content, else append it
-                if ($(existingWrapper).length > 0) {
-                    $(existingWrapper).replaceWith(newWrapper);
-                }
-                else {
-                    $(block).append(newWrapper);
-                }
-            }
-        });
+    function showReport(report) {
+        currentProject = report.Project;
+        cancelRefreshTimer();
+        $(projectNavigatorOption).text(report.Project.Name);
+        $(reportNavigatorOption).text(formatReportId(report.Id)).trigger("click");
+        $(block).empty().append(reportDetails(report));
 
         // trap missing images
         $('.walter-avatar-icon').error(function () {
             $(this).attr('src', 'img/walter-default-avatar.png');
         });
 
-        setTimeout(refresh, refreshSeconds * 1000);
+        setRefreshTimer(function () {
+            showReport(report);
+        });
     }
 
     /**
-     * Bind specific classes and ids to UI functions
+     * Show build info for a specific project
+     *
+     * @param project
      */
-    function bindControls() {
-        $(".walter-expand-all").on("click", function () {
-            toggleProjects(true);
-        });
-        $(".walter-collapse-all").on("click", function () {
-            toggleProjects(false);
+    function showProject(project) {
+        currentProject = project;
+        cancelRefreshTimer();
+        $(projectNavigatorOption).text(project.Name).trigger("click");
+        setRefreshTimer(function () {
+            showProject(project);
         });
     }
 
-    // intialize the container
-    block = div("block");
-    $(container).append(block);
+    /**
+     *  Show available projects filtered by the optional patter
+     * @param [projectNamePattern]
+     */
+    function showProjects(projectNamePattern) {
+        cancelRefreshTimer();
+        $(block).empty();
+        walterServer.getProjects(projectNamePattern, function (projects) {
+            if (projects && projects.length) {
+                for (var i = 0; i < projects.length; i++) {
+                    $(block).append(projectInfo(projects[i]));
+                }
+            }
+            else {
+                $(block).append(
+                    div("no-results")
+                        .text("No " + (projectNamePattern ? "matching " : "") + "walter projects found")
+                );
+            }
+        });
+    }
 
-    // bind controls
-    bindControls();
+    /**
+     * Show projects currently being built, and recent jobs
+     */
+    function showActivity() {
+        cancelRefreshTimer();
 
-    // refresh now
-    refresh();
+        var days = 5;
+        walterServer.getProjectHistory(
+            null,
+            {
+                //status: "Running",
+                since: now() - (days * 24 * 3600)
+            },
+            function (history) {
+                $(block).empty();
+                if (history && history.length) {
+                    var addReport = function (report) {
+                        $(block).append(reportSummary(report));
+                    };
+                    for (var i = 0; i < history.length; i++) {
+                        addReport(history[i]);
+                    }
+                }
+                else {
+                    $(block).append(
+                        div("no-results")
+                            .text("No activity in the last " + days + " day" + (days == 1 ? "" : "s"))
+                    );
+                }
+            });
 
+        setRefreshTimer(showActivity);
+    }
+
+    /**
+     * set the refresh timer
+     * @param func
+     */
+    function setRefreshTimer(func) {
+        cancelRefreshTimer();
+        refreshTimer = setTimeout(func, refreshSeconds * 1000);
+    }
+
+    /** cancel any pending refreshes */
+    function cancelRefreshTimer() {
+        if (refreshTimer) {
+            clearTimeout(refreshTimer);
+        }
+        refreshTimer = 0;
+    }
+
+    $(container)
+        .append(navigator())
+        .append(block);
+
+    // default action
+    $(".walter-navigator-option-activity").trigger("click");
 }
