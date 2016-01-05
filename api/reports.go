@@ -78,6 +78,8 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dh := db.GetHandler()
+	defer dh.Close()
+
 	dh.SetLogOutput(os.Stdout)
 
 	order := dh.OrderBy("start", genmai.DESC).Limit(limit + 1)
@@ -219,6 +221,8 @@ func createReport(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dh := db.GetHandler()
+	defer dh.Close()
+
 	var projects []db.Project
 	if err := dh.Select(&projects, dh.Where("repo", "=", data.Project.Repo)); err != nil {
 		panic(err)
