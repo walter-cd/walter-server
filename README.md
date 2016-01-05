@@ -20,9 +20,11 @@ POST /api/v1/reports
 Content-Type: application/json
 
 {
-  "project": "walter-server",
+  "project": {
+    "name": "walter-server",
+    "repo": "https://github.com/walter-cd/walter-server"
+  },
   "status": "fail",
-  "repo": "https://github.com/walter-cd/walter-server",
   "branch": "master",
   "commits": [
     {
@@ -84,13 +86,21 @@ Location:
 
 ----
 
-### GET /api/v1/reports?maxId=XXX
+### GET /api/v1/reports?count=XXXXX&until=YYYYY
 
 #### Request
 
 ```
-GET /api/v1/reports?maxId=XXX
+GET /api/v1/reports?count=XXXXX&until=YYYYY
 ```
+
+| Parameter | Description |
+|-----------|-------------|
+|count | API returns this number of reports at most.  |
+|since|  API returns reports that start time of which are after this parameter (Unix time by seconds) . |
+|until| API returns reports that start time of which are before this parameter (Unix time by seconds) . |
+|status| API returs reports that the status of which are this parameter(Passed, Failed, Running or Pending) . |
+
 
 #### Reponse
 
@@ -99,9 +109,12 @@ GET /api/v1/reports?maxId=XXX
   "Reports": [
     {
       "Id": 2,
-      "Project": "walter-cd/walter",
+      "Project": {
+        "Name" => "walter-cd/walter",
+        "Repo": "https://github.com/walter-cd/walter",
+      },
       "Status": "Failed",
-      "Repo": "https://github.com/walter-cd/walter",
+
       "Branch": "alpha",
       "Commits": [
         {
@@ -132,9 +145,11 @@ GET /api/v1/reports?maxId=XXX
     },
     {
       "Id": 1,
-      "Project": "walter-cd/walter-server",
+      "Project": {
+        "Name": "walter-cd/walter-server",
+        "Repo": "https://github.com/walter-cd/walter-server"
+      },
       "Status": "Passed",
-      "Repo": "https://github.com/walter-cd/walter-server",
       "Branch": "alpha",
       "Commits": [
         {
@@ -164,19 +179,26 @@ GET /api/v1/reports?maxId=XXX
       }
     }
   ],
-  "NextId": 0
+  "NextStart": 1440247583
 }
 ```
 
 ---
 
-### GET /api/v1/reports/:projectId?maxId=XXX
+### GET /api/v1/reports/:projectId?count=XXXXX&until=YYYYY
 
 #### Request
 
 ```
-GET /api/v1/reports/1?maxId=XXX
+GET /api/v1/reports/1?count=XXXXX&until=YYYYY
 ```
+
+| Parameter | Description |
+|-----------|-------------|
+|count | API returns this number of reports at most.  |
+|since|  API returns reports that start time of which are after this parameter (Unix time by seconds) . |
+|until| API returns reports that start time of which are before this parameter (Unix time by seconds) . |
+|status| API returs reports that the status of which are this parameter(Passed, Failed, Running or Pending) . |
 
 #### Reponse
 
@@ -185,9 +207,11 @@ GET /api/v1/reports/1?maxId=XXX
   "Reports": [
     {
       "Id": 6,
-      "Project": "walter-cd/walter-server",
+      "Project": {
+        "Name": "walter-cd/walter-server",
+        "Repo": "https://github.com/walter-cd/walter-server"
+      },
       "Status": "Passed",
-      "Repo": "https://github.com/walter-cd/walter-server",
       "Branch": "alpha",
       "Commits": [
         {
@@ -256,9 +280,11 @@ GET /api/v1/reports/1?maxId=XXX
     },
     {
       "Id": 3,
-      "Project": "walter-cd/walter-server",
+      "Project": {
+        "Name": "walter-cd/walter-server",
+        "Repo": "https://github.com/walter-cd/walter-server"
+      },
       "Status": "Passed",
-      "Repo": "https://github.com/walter-cd/walter-server",
       "Branch": "master",
       "Commits": [
         {
@@ -332,9 +358,11 @@ GET /api/v1/reports/1?maxId=XXX
     },
     {
       "Id": 1,
-      "Project": "walter-cd/walter-server",
+      "Project": {
+        "Name": "walter-cd/walter-server",
+        "Repo": "https://github.com/walter-cd/walter-server"
+      },
       "Status": "Passed",
-      "Repo": "https://github.com/walter-cd/walter-server",
       "Branch": "alpha",
       "Commits": [
         {
@@ -402,6 +430,6 @@ GET /api/v1/reports/1?maxId=XXX
       }
     }
   ],
-  "NextId": 0
+  "NextStart": 0
 }
 ```

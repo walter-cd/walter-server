@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"regexp"
 	"strconv"
 	"time"
@@ -15,15 +16,14 @@ import (
 )
 
 type Reports struct {
-	Reports []*Report
-	NextId  int64
+	Reports   []*Report
+	NextStart int64
 }
 
 type Report struct {
 	Id          int64
-	Project     string
+	Project     *Project
 	Status      string
-	Repo        string
 	Branch      string
 	Commits     []*Commit
 	Stages      []*Stage
@@ -31,6 +31,12 @@ type Report struct {
 	Start       int64
 	End         int64
 	TriggeredBy User
+}
+
+type Project struct {
+	Id   int64
+	Name string
+	Repo string
 }
 
 type Commit struct {
@@ -67,13 +73,17 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 	res := &Reports{}
 
 	limit := 20
+	if r.FormValue("count") != "" {
+		limit, _ = strconv.Atoi(r.FormValue("count"))
+	}
 
 	dh := db.GetHandler()
-	//dh.SetLogOutput(os.Stdout)
+	dh.SetLogOutput(os.Stdout)
 
-	order := dh.OrderBy("id", genmai.DESC).Limit(limit + 1)
+	order := dh.OrderBy("start", genmai.DESC).Limit(limit + 1)
 
-	where := &genmai.Condition{}
+	var cond [][]interface{}
+
 	re := regexp.MustCompile(`^/api/v1/reports/(\d+)$`)
 
 	projectId := ""
@@ -82,15 +92,29 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if projectId != "" {
-		where = dh.Where("project_id", "=", projectId)
+		cond = append(cond, []interface{}{"project_id", "=", projectId})
 	}
 
-	maxId, _ := strconv.Atoi(r.FormValue("maxId"))
-	if maxId > 0 {
-		if projectId == "" {
-			where = dh.Where("id", "<=", maxId)
+	if until := r.FormValue("until"); until != "" {
+		u, _ := strconv.ParseInt(until, 10, 64)
+		cond = append(cond, []interface{}{"start", "<=", time.Unix(u, 0)})
+	}
+
+	if since := r.FormValue("since"); since != "" {
+		s, _ := strconv.ParseInt(since, 10, 64)
+		cond = append(cond, []interface{}{"start", ">=", time.Unix(s, 0)})
+	}
+
+	if status := r.FormValue("status"); status != "" {
+		cond = append(cond, []interface{}{"status", "=", status})
+	}
+
+	where := &genmai.Condition{}
+	for i, c := range cond {
+		if i < 1 {
+			where = dh.Where(c[0], c[1], c[2])
 		} else {
-			where = where.And(dh.Where("id", "<=", maxId))
+			where = where.And(dh.Where(c[0], c[1], c[2]))
 		}
 	}
 
@@ -99,7 +123,7 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 	dh.Select(&reports, where, order)
 
 	if len(reports) > limit {
-		res.NextId = reports[limit].Id
+		res.NextStart = reports[limit].Start.Unix()
 		reports = reports[:len(reports)-1]
 	}
 
@@ -117,8 +141,11 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 		dh.Select(&projects, dh.Where("id", "=", report.ProjectId))
 		project := projects[0]
 
-		r.Project = project.Name
-		r.Repo = project.Repo
+		r.Project = &Project{
+			Id:   project.Id,
+			Name: project.Name,
+			Repo: project.Repo,
+		}
 
 		var commits []db.Commit
 		dh.Select(&commits, dh.Where("report_id", "=", report.Id))
@@ -193,13 +220,13 @@ func createReport(w http.ResponseWriter, r *http.Request) {
 
 	dh := db.GetHandler()
 	var projects []db.Project
-	if err := dh.Select(&projects, dh.Where("repo", "=", data.Repo)); err != nil {
+	if err := dh.Select(&projects, dh.Where("repo", "=", data.Project.Repo)); err != nil {
 		panic(err)
 	}
 
 	var projectId int64
 	if len(projects) == 0 {
-		project := &db.Project{Name: data.Project, Repo: data.Repo}
+		project := &db.Project{Name: data.Project.Name, Repo: data.Project.Repo}
 		dh.Insert(project)
 		projectId, _ = dh.LastInsertId()
 	} else {

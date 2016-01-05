@@ -12,13 +12,15 @@
     color: #888;
 }
 
-.walter-project-heading {
+.walter-report-heading-text {
     background-image: url(../img/walter-project.png);
     background-size: 24px 24px;
     background-repeat: no-repeat;
+    background-position: 0px 2px;
     padding-left: 28px;
-    line-height: 28px;
     vertical-align: middle;
+    line-height: 32px;
+
 }
 
 .walter-avatar {
@@ -48,4 +50,16 @@
 .walter-console-error {
     color: #fff;
     background-color: #B94A48;
+}
+
+.walter-navigator {
+    color: gray;
+}
+
+.walter-navigator-selected {
+    color: #0068B7;
+}
+
+.walter-row-fixed-height {
+    line-height: 32px;
 }

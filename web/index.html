@@ -14,18 +14,9 @@
     <script src="js/walter-server.js"></script>
     <script src="js/walter-server-ui.js"></script>
 
-    <!--test only-->
-    <script src="js/walter-server-emulator.js"></script>
-    <!--test only-->
-
     <script>
         $(document).ready(function () {
-            // create a walter server UI in the specified divs
-            new WalterServerUI(
-                    new WalterServer(),
-                    "optional project filter",
-                    $("#walter-build-info")
-            );
+            new WalterServerUI(new WalterServer(), $("#walter-build-info"));
         });
     </script>
 
@@ -42,16 +33,9 @@
             </div>
             <div class="one fourth skip-two hide-on-small-tablet hide-on-mobile">
                 <p class="small pad-top align-right">
-                    <a href="https://github.com/walter-cd/walter-server" target="_blank">Github Project</a>
+                    <a href="https://github.com/walter-cd" target="_blank">walter on GitHub</a>
                 </p>
             </div>
-        </div>
-        <div class="row">
-            <div class="row eight twelfths skip-one padded">
-                <a href="#" class="gap-right walter-expand-all"><i class="icon-expand-alt"></i> Expand All</a>
-                <a href="#" class="gap-right walter-collapse-all"><i class="icon-collapse-alt"></i> Collapse All</a>
-            </div>
-            <div class="two twelfths"><input id="walter-search" rel="search"></div>
         </div>
     </div>
 </header>
