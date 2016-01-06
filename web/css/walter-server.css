@@ -2,6 +2,11 @@
 
 .walter-logo {
     height: 36px;
+    padding-bottom: 4px;
+}
+
+.walter-header {
+    background-color: #335E7B;
 }
 
 .walter-color-faded {
@@ -10,6 +15,10 @@
 
 .walter-color-grey {
     color: #888;
+}
+
+.walter-color-white {
+    color: #fff !important;
 }
 
 .walter-report-heading-text {

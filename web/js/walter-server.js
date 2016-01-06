@@ -10,6 +10,12 @@ function WalterServer() {
         status: ''
     };
 
+    /**
+     * Return the project build history for one or all projects
+     * @param projectId
+     * @param queryParameters
+     * @param callback
+     */
     this.getProjectHistory = function (projectId, queryParameters, callback) {
 
         var mergedParameters = $.extend({}, defaultQueryParameters, queryParameters);
@@ -25,27 +31,23 @@ function WalterServer() {
         );
     };
 
+    /**
+     * Return known projects
+     *
+     * @param projectNamePattern
+     * @param callback
+     */
     this.getProjects = function (projectNamePattern, callback) {
 
-        var url = apiReportsUrl; // apiProjectsUrl;
+        var url = apiProjectsUrl;
 
         jQuery.getJSON(url,
             {},
-            function (data, status) {
-                var projects = [];
-                var knownProjects = {};
-                if (data && data.Reports && callback) {
-                    for (var i = 0; i < data.Reports.length; i++) {
-                        var project = data.Reports[i].Project;
-                        if (!projectNamePattern ||
-                            (project.Name.toLowerCase().indexOf(projectNamePattern.toLowerCase()) != -1)) {
-                            if (!knownProjects[project.Name]) {
-                                projects.push(project);
-                                knownProjects[project.Name] = true;
-                            }
-                        }
-                    }
-                }
+            function (projects, status) {
+                // sort by name
+                projects.sort(function (a,b) {
+                    return a.Name.localeCompare(b.Name);
+                });
                 callback(projects);
             }
         );
