@@ -11,11 +11,11 @@ import (
 )
 
 type Jobs struct {
-	jobs  []*job
+	jobs  []*Job
 	mutex sync.Mutex
 }
 
-type job struct {
+type Job struct {
 	Project        string
 	Revision       string
 	HtmlUrl        string
@@ -144,7 +144,7 @@ func (j *Jobs) handlePushEvent(body string) {
 		panic(err)
 	}
 
-	job := &job{}
+	job := &Job{}
 
 	job.Project = data.Repository.Name
 	job.Revision = data.After
@@ -178,7 +178,7 @@ func (j *Jobs) handlePullRequestEvent(body string) {
 		panic(err)
 	}
 
-	job := &job{}
+	job := &Job{}
 
 	job.Project = data.Repository.Name
 	job.Revision = data.PullRequest.Head.Sha
