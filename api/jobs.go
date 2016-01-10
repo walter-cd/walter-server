@@ -146,7 +146,7 @@ func (j *Jobs) handlePushEvent(body string) {
 
 	job := &Job{}
 
-	job.Project = data.Repository.Name
+	job.Project = data.Repository.FullName
 	job.Revision = data.After
 	job.HtmlUrl = data.Repository.HtmlUrl
 	job.CloneUrl = data.Repository.CloneUrl
