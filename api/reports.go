@@ -21,7 +21,7 @@ type Reports struct {
 }
 
 type Report struct {
-	Id          int64
+	Id          int64 `json:",omitempty"`
 	Project     *Project
 	Status      string
 	Branch      string
@@ -34,7 +34,7 @@ type Report struct {
 }
 
 type Project struct {
-	Id   int64
+	Id   int64 `json:",omitempty"`
 	Name string
 	Repo string
 }
