@@ -30,7 +30,7 @@ type Report struct {
 	CompareUrl  string
 	Start       int64
 	End         int64
-	TriggeredBy User
+	TriggeredBy *User
 }
 
 type Project struct {
