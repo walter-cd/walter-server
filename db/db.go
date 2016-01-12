@@ -33,6 +33,7 @@ type Commit struct {
 	Revision  string `size:"255"`
 	Author    string `size:"255"`
 	Message   string
+	Url       string
 	CreatedAt time.Time
 }
 

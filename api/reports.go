@@ -43,6 +43,7 @@ type Commit struct {
 	Revision string
 	Author   string
 	Message  string
+	Url      string
 }
 
 type Stage struct {
@@ -156,6 +157,7 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 				Revision: commit.Revision,
 				Author:   commit.Author,
 				Message:  commit.Message,
+				Url:      commit.Url,
 			})
 		}
 
@@ -275,6 +277,7 @@ func createReport(w http.ResponseWriter, r *http.Request) {
 			Revision: commit.Revision,
 			Author:   commit.Author,
 			Message:  commit.Message,
+			Url:      commit.Url,
 		}
 		dh.Insert(c)
 	}
