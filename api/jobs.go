@@ -151,7 +151,9 @@ func (j *Jobs) handlePushEvent(body string) {
 	job.HtmlUrl = data.Repository.HtmlUrl
 	job.CloneUrl = data.Repository.CloneUrl
 	job.CompareUrl = data.Compare
-	job.Branch = data.Ref
+
+	ref := strings.Split(data.Ref, "/")
+	job.Branch = ref[len(ref)-1]
 
 	for _, c := range data.Commits {
 		job.Commits = append(job.Commits, &commit{
