@@ -54,7 +54,6 @@ type payloadPullRequestEvent struct {
 	Action      string
 	Number      int64
 	PullRequest payloadPullRequest `json:"pull_request"`
-	Base        payloadBase
 	Sender      payloadSender
 }
 
@@ -64,7 +63,7 @@ type payloadPullRequest struct {
 	StatusesUrl string `json:"statuses_url"`
 	Head        payloadPullRequestHead
 	User        payloadPullRequestUser
-	Repo        payloadRepository
+	Base        payloadBase
 }
 
 type payloadBase struct {
@@ -182,18 +181,20 @@ func (j *Jobs) handlePullRequestEvent(body string) {
 		panic(err)
 	}
 
-	fmt.Println(data.Action)
-
 	if data.Action != "opened" && data.Action != "synchronize" {
+		return
+	}
+
+	if data.PullRequest.Head.Repo.FullName == data.PullRequest.Base.Repo.FullName {
 		return
 	}
 
 	job := &Job{}
 
-	job.Project = data.Base.Repo.Name
+	job.Project = data.PullRequest.Base.Repo.FullName
 	job.Revision = data.PullRequest.Head.Sha
-	job.HtmlUrl = data.Base.Repo.HtmlUrl
-	job.CloneUrl = data.PullRequest.Head.Repo.CloneUrl
+	job.HtmlUrl = data.PullRequest.Base.Repo.HtmlUrl
+	job.CloneUrl = data.PullRequest.Base.Repo.CloneUrl
 	job.Branch = data.PullRequest.Head.Ref
 	job.PullRequestUrl = data.PullRequest.HtmlUrl
 	job.StatusesUrl = data.PullRequest.StatusesUrl
@@ -213,6 +214,9 @@ func (j *Jobs) handlePullRequestEvent(body string) {
 	job.Commits = append(job.Commits, c)
 
 	j.jobs = append(j.jobs, job)
+
+	b, _ := json.Marshal(job)
+	fmt.Println(string(b))
 }
 
 func (j *Jobs) getJob(w http.ResponseWriter, r *http.Request) {
