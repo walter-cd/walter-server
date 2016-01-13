@@ -54,7 +54,7 @@ type payloadPullRequestEvent struct {
 	Action      string
 	Number      int64
 	PullRequest payloadPullRequest `json:"pull_request"`
-	Repository  payloadRepository
+	Base        payloadBase
 	Sender      payloadSender
 }
 
@@ -64,6 +64,11 @@ type payloadPullRequest struct {
 	StatusesUrl string `json:"statuses_url"`
 	Head        payloadPullRequestHead
 	User        payloadPullRequestUser
+	Repo        payloadRepository
+}
+
+type payloadBase struct {
+	Repo payloadRepository
 }
 
 type payloadPullRequestUser struct {
@@ -71,13 +76,9 @@ type payloadPullRequestUser struct {
 }
 
 type payloadPullRequestHead struct {
-	Repo payloadPullRequestHeadRepo
+	Repo payloadRepository
 	Ref  string
 	Sha  string
-}
-
-type payloadPullRequestHeadRepo struct {
-	CloneUrl string `json:"clone_url"`
 }
 
 type payloadRepository struct {
@@ -181,15 +182,17 @@ func (j *Jobs) handlePullRequestEvent(body string) {
 		panic(err)
 	}
 
-	if data.Action != "opened" || data.Action != "synchronize" {
+	fmt.Println(data.Action)
+
+	if data.Action != "opened" && data.Action != "synchronize" {
 		return
 	}
 
 	job := &Job{}
 
-	job.Project = data.Repository.Name
+	job.Project = data.Base.Repo.Name
 	job.Revision = data.PullRequest.Head.Sha
-	job.HtmlUrl = data.Repository.HtmlUrl
+	job.HtmlUrl = data.Base.Repo.HtmlUrl
 	job.CloneUrl = data.PullRequest.Head.Repo.CloneUrl
 	job.Branch = data.PullRequest.Head.Ref
 	job.PullRequestUrl = data.PullRequest.HtmlUrl
