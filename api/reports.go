@@ -51,7 +51,7 @@ type Stage struct {
 	Status string
 	Out    string
 	Err    string
-	Stages []*Stage
+	Stages []*Stage `json:",omitempty"`
 	Start  int64
 	End    int64
 }
