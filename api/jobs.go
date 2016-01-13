@@ -51,6 +51,7 @@ type payloadPushEvent struct {
 }
 
 type payloadPullRequestEvent struct {
+	Action      string
 	Number      int64
 	PullRequest payloadPullRequest `json:"pull_request"`
 	Repository  payloadRepository
@@ -178,6 +179,10 @@ func (j *Jobs) handlePullRequestEvent(body string) {
 	err := json.Unmarshal([]byte(body), &data)
 	if err != nil {
 		panic(err)
+	}
+
+	if data.Action != "opened" || data.Action != "synchronize" {
+		return
 	}
 
 	job := &Job{}
