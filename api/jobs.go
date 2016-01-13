@@ -81,10 +81,11 @@ type payloadPullRequestHead struct {
 }
 
 type payloadRepository struct {
-	Name     string
-	FullName string `json:"full_name"`
-	HtmlUrl  string `json:"html_url"`
-	CloneUrl string `json:"clone_url"`
+	Name        string
+	FullName    string `json:"full_name"`
+	HtmlUrl     string `json:"html_url"`
+	CloneUrl    string `json:"clone_url"`
+	StatusesUrl string `json:"statuses_url"`
 }
 
 type payloadCommit struct {
@@ -152,6 +153,7 @@ func (j *Jobs) handlePushEvent(body string) {
 	job.HtmlUrl = data.Repository.HtmlUrl
 	job.CloneUrl = data.Repository.CloneUrl
 	job.CompareUrl = data.Compare
+	job.StatusesUrl = strings.Replace(data.Repository.StatusesUrl, "{sha}", job.Revision, 1)
 
 	ref := strings.Split(data.Ref, "/")
 	job.Branch = ref[len(ref)-1]
@@ -214,9 +216,6 @@ func (j *Jobs) handlePullRequestEvent(body string) {
 	job.Commits = append(job.Commits, c)
 
 	j.jobs = append(j.jobs, job)
-
-	b, _ := json.Marshal(job)
-	fmt.Println(string(b))
 }
 
 func (j *Jobs) getJob(w http.ResponseWriter, r *http.Request) {
