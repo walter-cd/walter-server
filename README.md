@@ -110,7 +110,7 @@ GET /api/v1/reports?count=XXXXX&until=YYYYY
     {
       "Id": 2,
       "Project": {
-        "Name" => "walter-cd/walter",
+        "Name": "walter-cd/walter",
         "Repo": "https://github.com/walter-cd/walter",
       },
       "Status": "Failed",
