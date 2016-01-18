@@ -433,3 +433,17 @@ GET /api/v1/reports/1?count=XXXXX&until=YYYYY
   "NextStart": 0
 }
 ```
+
+## Web GUI
+
+# Example URLS
+
+* `http://localhost:8080`
+  * Show default UI interface with the Activity tab focussed
+* `http://localhost:8080?projects`
+  * Show the Projects tab
+* `http://localhost:8080?project=walter-cd/walter`
+  * Show the build history for a specific project
+* `http://localhost:8080?project=walter-cd/walter&report=102`
+  * Show the build history for a specific project
+
