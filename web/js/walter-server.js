@@ -7,7 +7,8 @@ function WalterServer() {
         count: 50,
         until: '',
         since: '',
-        status: ''
+        status: '',
+        projectId: ''
     };
 
     /**
@@ -18,8 +19,8 @@ function WalterServer() {
      */
     this.getProjectHistory = function (projectId, queryParameters, callback) {
 
-        var mergedParameters = $.extend({}, defaultQueryParameters, queryParameters);
-        var url = apiReportsUrl + (projectId ? projectId : "");
+        var mergedParameters = $.extend({}, defaultQueryParameters, queryParameters, {projectId: projectId});
+        var url = apiReportsUrl
 
         jQuery.getJSON(url,
             mergedParameters,
