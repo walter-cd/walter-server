@@ -89,12 +89,16 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 
 	re := regexp.MustCompile(`^/api/v1/reports/(\d+)$`)
 
-	projectId := ""
+	reportId := ""
 	if m := re.FindStringSubmatch(r.URL.Path); m != nil {
-		projectId = m[1]
+		reportId = m[1]
 	}
 
-	if projectId != "" {
+	if reportId != "" {
+		cond = append(cond, []interface{}{"id", "=", reportId})
+	}
+
+	if projectId := r.FormValue("projectId"); projectId != "" {
 		cond = append(cond, []interface{}{"project_id", "=", projectId})
 	}
 
@@ -202,7 +206,13 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	b, _ := json.Marshal(res)
+	var b []byte
+	if reportId != "" {
+		b, _ = json.Marshal(&struct{ Report *Report }{Report: res.Reports[0]})
+	} else {
+		b, _ = json.Marshal(res)
+	}
+
 	fmt.Fprint(w, string(b))
 }
 
