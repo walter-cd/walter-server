@@ -16,16 +16,17 @@ type Jobs struct {
 }
 
 type Job struct {
-	Project        string
-	Revision       string
-	HtmlUrl        string
-	CloneUrl       string
-	CompareUrl     string
-	StatusesUrl    string
-	PullRequestUrl string
-	Branch         string
-	Commits        []*commit
-	TriggeredBy    *triggeredBy
+	Project           string
+	Revision          string
+	HtmlUrl           string
+	CloneUrl          string
+	CompareUrl        string
+	StatusesUrl       string
+	PullRequestUrl    string
+	PullRequestNumber int64
+	Branch            string
+	Commits           []*commit
+	TriggeredBy       *triggeredBy
 }
 
 type commit struct {
@@ -199,6 +200,7 @@ func (j *Jobs) handlePullRequestEvent(body string) {
 	job.CloneUrl = data.PullRequest.Base.Repo.CloneUrl
 	job.Branch = data.PullRequest.Head.Ref
 	job.PullRequestUrl = data.PullRequest.HtmlUrl
+	job.PullRequestNumber = data.Number
 	job.StatusesUrl = data.PullRequest.StatusesUrl
 
 	job.TriggeredBy = &triggeredBy{
