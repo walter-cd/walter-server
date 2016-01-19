@@ -9,11 +9,13 @@
 function WalterServerUI(walterServer, container) {
 
     /* seconds between refreshes */
-    var refreshSeconds = 8;
+    var refreshSeconds = 12;
     /* the navigation option for the active project */
     var projectNavigatorOption;
     /* the navigation option for the active report */
     var reportNavigatorOption;
+    /* the permalink button */
+    var permalinkNavigatorOption;
     /* current project being shown */
     var currentProject;
     /* a handle on the refresh timer */
@@ -44,8 +46,14 @@ function WalterServerUI(walterServer, container) {
         "clock-icon": {classes: ["icon-time inline", "walter-color-faded"]},
         "empty-time": {classes: ["inline"]},
         "branch-icon": {classes: ["icon-code-fork inline"]},
-        "console": {tag: "<code/>", classes: ["box one whole square double-pad-top double-pad-bottom", "walter-console"]},
-        "console-error": {tag: "<code/>", classes: ["box one whole square double-pad-top double-pad-bottom", "walter-console-error"]},
+        "console": {
+            tag: "<code/>",
+            classes: ["box one whole square double-pad-top double-pad-bottom", "walter-console"]
+        },
+        "console-error": {
+            tag: "<code/>",
+            classes: ["box one whole square double-pad-top double-pad-bottom", "walter-console-error"]
+        },
         "pre": {tag: "<pre/>"},
         "commits": {classes: ["square"]},
         "commit": {classes: ["row"]},
@@ -61,10 +69,14 @@ function WalterServerUI(walterServer, container) {
         "status-running": {classes: ["question inline"]},
         "status-pending": {classes: ["walter-color-grey inline"]},
         "navigator": {classes: ["double-pad-bottom", "walter-navigator"]},
-        "navigator-option-activity": {tag: "<h3/>", classes: ["inline double-pad-right", "walter-pointer"]},
-        "navigator-option-projects": {tag: "<h3/>", classes: ["inline double-pad-right", "walter-pointer"]},
-        "navigator-option-project": {tag: "<h3/>", classes: ["inline pad-right", "walter-pointer"]},
-        "navigator-option-report": {tag: "<h3/>", classes: ["inline", "walter-pointer"]},
+        "navigator-option-activity": {tag: "<h3/>", classes: ["inline", "walter-pointer"]},
+        "navigator-option-projects": {tag: "<h3/>", classes: ["inline double-pad-left", "walter-pointer"]},
+        "navigator-option-project": {
+            tag: "<h3/>",
+            classes: ["inline double-pad-left animated pulse", "walter-pointer"]
+        },
+        "navigator-option-report": {tag: "<h3/>", classes: ["inline pad-left animated pulse", "walter-pointer"]},
+        "navigator-option-permalink": {classes: ["inline pad-left align-right icon-external-link animated fadeInDown", "walter-permalink walter-color-permalink walter-pointer"]},
         "no-results": {
             tag: "<h3/>",
             classes: ["align-center one centered mobile third double-pad-top double-pad-bottom", "walter-color-faded walter-color-grey"]
@@ -176,24 +188,41 @@ function WalterServerUI(walterServer, container) {
 
         $(w).append(
             group([
-                {item: div("report-summary-heading").text(report.Project.Name), width: "two sixths"},
-                {
-                    item: div().append(
-                        status(report.Status,
-                            div("inline")
-                                .append(formatReportId(report.Id) + ' ' + report.Status + ' on ')
-                                .append(div("branch-icon"))
-                                .append(" " + report.Branch))),
-                    width: "two sixths"
-                },
-                {item: user(report.TriggeredBy), width: "one sixth"},
-                {item: timing, width: "one sixth align-right"}
+                    {item: div("report-summary-heading").text(report.Project.Name), width: "two sixths"},
+                    {
+                        item: div().append(
+                            status(report.Status,
+                                div("inline")
+                                    .append(formatReportId(report.Id) + ' ' + report.Status + ' on ')
+                                    .append(div("branch-icon"))
+                                    .append(" " + report.Branch))),
+                        width: "two sixths"
+                    },
+                    {item: user(report.TriggeredBy), width: "one sixth"},
+                    {item: timing, width: "one sixth align-right"}
 
-            ],
-            "row-fixed-height")
+                ],
+                "row-fixed-height")
         );
 
         return w;
+    }
+
+    /**
+     * Create a permalink
+     */
+    function createPermalink(options) {
+        $(permalinkNavigatorOption)
+            .show()
+            .unbind("click")
+            .bind("click", function () {
+                if (options.project) {
+                    var parameters = "?project=" + options.project.Name + (options.report ? "&report=" + options.report.Id : "");
+                    window.prompt("Here is a direct link to this Project" + (options.report?" and Report":""),
+                        window.location.origin + parameters);
+                    window.location.search = parameters;
+                }
+            });
     }
 
     /**
@@ -277,17 +306,17 @@ function WalterServerUI(walterServer, container) {
         // build status
         $(w).append(
             group([
-                {
-                    item: div("report-heading-text")
-                        .text(report.Project.Name)
-                        .on("click", function () {
-                            showProject(report.Project);
-                        }),
-                    width: "two thirds"
-                },
-                {item: url(report.Project.Repo), width: "one third align-right"}
-            ],
-            "row-fixed-height")
+                    {
+                        item: div("report-heading-text")
+                            .text(report.Project.Name)
+                            .on("click", function () {
+                                showProject(report.Project);
+                            }),
+                        width: "two thirds"
+                    },
+                    {item: url(report.Project.Repo), width: "one third align-right"}
+                ],
+                "row-fixed-height")
         );
 
         // LHS
@@ -360,12 +389,12 @@ function WalterServerUI(walterServer, container) {
     function navigator() {
         var w = div("navigator");
 
-
         var selectNavigator = function (me) {
             $(me).siblings().removeClass("walter-navigator-selected");
             $(me).addClass("walter-navigator-selected");
             $(projectNavigatorOption).toggle((me == projectNavigatorOption) || (me == reportNavigatorOption));
             $(reportNavigatorOption).toggle(me == reportNavigatorOption);
+            $(permalinkNavigatorOption).hide();
         };
 
         projectNavigatorOption = div("navigator-option-project")
@@ -393,6 +422,8 @@ function WalterServerUI(walterServer, container) {
                     $('.walter-avatar-icon').error(function () {
                         $(this).attr('src', 'img/walter-default-avatar.png');
                     });
+
+                    createPermalink({project: currentProject});
                 }
             })
             .hide();
@@ -402,6 +433,10 @@ function WalterServerUI(walterServer, container) {
             .bind("click", function () {
                 selectNavigator(reportNavigatorOption);
             })
+            .hide();
+
+        permalinkNavigatorOption = div("navigator-option-permalink")
+            .attr("title", "Link to this page")
             .hide();
 
         $(w)
@@ -423,6 +458,7 @@ function WalterServerUI(walterServer, container) {
             )
             .append(projectNavigatorOption)
             .append(reportNavigatorOption)
+            .append(permalinkNavigatorOption)
             .append(div("line"))
         ;
 
@@ -526,7 +562,6 @@ function WalterServerUI(walterServer, container) {
         $(projectNavigatorOption).text(report.Project.Name);
         $(reportNavigatorOption).text(formatReportId(report.Id)).trigger("click");
         $(block).empty().append(reportDetails(report));
-
         // trap missing images
         $('.walter-avatar-icon').error(function () {
             $(this).attr('src', 'img/walter-default-avatar.png');
@@ -535,6 +570,8 @@ function WalterServerUI(walterServer, container) {
         setRefreshTimer(function () {
             showReport(report);
         });
+
+        createPermalink({project: report.Project, report: report});
     }
 
     /**
@@ -624,10 +661,58 @@ function WalterServerUI(walterServer, container) {
         refreshTimer = 0;
     }
 
+    function getParameters() {
+        var namedValues = {};
+        var splitPoint = window.location.href.indexOf('?');
+        if (splitPoint != -1) {
+            var params = window.location.href.slice(splitPoint + 1).split('&');
+            for (var i = 0; i < params.length; i++) {
+                var param = params[i].split('=');
+                namedValues[param[0]] = param[1] ? param[1] : true;
+            }
+        }
+        return namedValues;
+    }
+
     $(container)
         .append(navigator())
         .append(block);
 
     // default action
-    $(".walter-navigator-option-activity").trigger("click");
+    var params = getParameters();
+    if (params["project"]) {
+        var project = params["project"];
+        walterServer.getProjects(project, function (matches) {
+            if (matches && matches.length) {
+                for (var i = 0; i < matches.length; i++) {
+                    if (matches[i].Name == project) {
+                        var matchedProject = matches[i];
+                        var reportId = params["report"];
+                        if (reportId) {
+                            walterServer.getProjectHistory(matchedProject.Id, {count: 1000}, function (history) {
+                                if (history) {
+                                    for (var j = 0; j < history.length; j++) {
+                                        if (history[j].Id == reportId) {
+                                            showReport(history[j]);
+                                            break;
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                        else {
+                            showProject(matchedProject);
+                        }
+                        break;
+                    }
+                }
+            }
+        });
+    }
+    else if (params["projects"]) {
+        $(".walter-navigator-option-projects").trigger("click");
+    }
+    else {
+        $(".walter-navigator-option-activity").trigger("click");
+    }
 }

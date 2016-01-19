@@ -29,7 +29,6 @@
     padding-left: 28px;
     vertical-align: middle;
     line-height: 32px;
-
 }
 
 .walter-avatar {
@@ -45,6 +44,11 @@
     -webkit-border-radius: 50%;
     border-radius: 50%;
     vertical-align: top;
+}
+
+.walter-permalink {
+    float: right;
+    line-height: 36px;
 }
 
 .walter-pointer {
@@ -65,7 +69,7 @@
     color: gray;
 }
 
-.walter-navigator-selected {
+.walter-navigator-selected, .walter-color-permalink {
     color: #0068B7;
 }
 
