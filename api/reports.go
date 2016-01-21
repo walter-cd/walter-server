@@ -319,4 +319,8 @@ func createReport(w http.ResponseWriter, r *http.Request) {
 			dh.Insert(s)
 		}
 	}
+
+	data.Id = reportId
+	b, _ := json.Marshal(data)
+	fmt.Fprint(w, string(b))
 }
