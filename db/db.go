@@ -88,6 +88,7 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
+
 	defer db.Close()
 
 	tables := [...]interface{}{
@@ -102,11 +103,13 @@ func Init() {
 		if err := db.CreateTable(t); err != nil {
 			if !regexp.MustCompile(`already exists`).Match([]byte(err.Error())) {
 				panic(err)
+				return
 			}
 		}
 	}
 
 }
+
 func GetHandler() *genmai.DB {
 	db, err := genmai.New(&genmai.SQLite3Dialect{}, "walter.sqlite3")
 	if err != nil {

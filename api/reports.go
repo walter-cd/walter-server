@@ -12,6 +12,7 @@ import (
 
 	"github.com/naoina/genmai"
 	"github.com/walter-cd/walter-server/db"
+	"github.com/walter-cd/walter/log"
 )
 
 type Reports struct {
@@ -226,7 +227,9 @@ func createReport(w http.ResponseWriter, r *http.Request) {
 	var data Report
 	err := json.Unmarshal([]byte(body), &data)
 	if err != nil {
-		panic(err)
+		log.Error(err.Error())
+		returnError(w, err.Error())
+		return
 	}
 
 	dh := db.GetHandler()
@@ -234,7 +237,9 @@ func createReport(w http.ResponseWriter, r *http.Request) {
 
 	var projects []db.Project
 	if err := dh.Select(&projects, dh.Where("repo", "=", data.Project.Repo)); err != nil {
-		panic(err)
+		log.Error(err.Error())
+		returnError(w, err.Error())
+		return
 	}
 
 	var projectId int64
@@ -248,7 +253,9 @@ func createReport(w http.ResponseWriter, r *http.Request) {
 
 	var users []db.User
 	if err := dh.Select(&users, dh.Where("url", "=", data.TriggeredBy.Url)); err != nil {
-		panic(err)
+		log.Error(err.Error())
+		returnError(w, err.Error())
+		return
 	}
 
 	var userId int64

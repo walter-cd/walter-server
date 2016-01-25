@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+
+	"github.com/walter-cd/walter/log"
 )
 
 type Jobs struct {
@@ -134,17 +136,19 @@ func (j *Jobs) createJob(w http.ResponseWriter, r *http.Request) {
 
 	event_type := r.Header.Get("X-Github-Event")
 	if event_type == "push" {
-		j.handlePushEvent(body)
+		j.handlePushEvent(w, body)
 	} else if event_type == "pull_request" {
-		j.handlePullRequestEvent(body)
+		j.handlePullRequestEvent(w, body)
 	}
 }
 
-func (j *Jobs) handlePushEvent(body string) {
+func (j *Jobs) handlePushEvent(w http.ResponseWriter, body string) {
 	var data payloadPushEvent
 	err := json.Unmarshal([]byte(body), &data)
 	if err != nil {
-		panic(err)
+		log.Error(err.Error())
+		returnError(w, err.Error())
+		return
 	}
 
 	job := &Job{}
@@ -177,11 +181,13 @@ func (j *Jobs) handlePushEvent(body string) {
 	j.jobs = append(j.jobs, job)
 }
 
-func (j *Jobs) handlePullRequestEvent(body string) {
+func (j *Jobs) handlePullRequestEvent(w http.ResponseWriter, body string) {
 	var data payloadPullRequestEvent
 	err := json.Unmarshal([]byte(body), &data)
 	if err != nil {
-		panic(err)
+		log.Error(err.Error())
+		returnError(w, err.Error())
+		return
 	}
 
 	if data.Action != "opened" && data.Action != "synchronize" {
