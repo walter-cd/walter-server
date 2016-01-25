@@ -217,7 +217,7 @@ function WalterServerUI(walterServer, container) {
             .unbind("click")
             .bind("click", function () {
                 if (options.project) {
-                    var parameters = "?project=" + options.project.Name + (options.report ? "&report=" + options.report.Id : "");
+                    var parameters = "?project=" + encodeURIComponent(options.project.Name) + (options.report ? "&report=" + options.report.Id : "");
                     window.prompt("Here is a direct link to this Project" + (options.report?" and Report":""),
                         window.location.origin + parameters);
                     window.location.search = parameters;
@@ -259,7 +259,7 @@ function WalterServerUI(walterServer, container) {
                 $(w).append(
                     group(
                         [
-                            {item: div().text(commit.Revision), width: "one tenth"},
+                            {item: div().text(commit.Revision.substr(0, 7)), width: "one tenth"},
                             {item: div().text(commit.Author), width: "two tenths"},
                             {item: div().text(commit.Message), width: "seven tenths"}
                         ],
@@ -668,7 +668,7 @@ function WalterServerUI(walterServer, container) {
             var params = window.location.href.slice(splitPoint + 1).split('&');
             for (var i = 0; i < params.length; i++) {
                 var param = params[i].split('=');
-                namedValues[param[0]] = param[1] ? param[1] : true;
+                namedValues[param[0]] = param[1] ? decodeURIComponent(param[1]) : true;
             }
         }
         return namedValues;
