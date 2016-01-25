@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"regexp"
+
+	"github.com/walter-cd/walter/log"
 )
 
 type route struct {
@@ -23,6 +26,12 @@ func (h *RegexpHandler) HandlerFunc(pattern *regexp.Regexp, handler func(http.Re
 }
 
 func (h *RegexpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	line := fmt.Sprintf("%s %s", r.Method, r.URL.Path)
+	if q := r.URL.RawQuery; q != "" {
+		line = fmt.Sprintf("%s?%s", line, q)
+	}
+	log.Info(line)
+
 	for _, route := range h.routes {
 		if route.pattern.MatchString(r.URL.Path) {
 			route.handler.ServeHTTP(w, r)

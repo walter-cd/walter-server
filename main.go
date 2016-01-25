@@ -2,8 +2,8 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"path/filepath"
 	"regexp"
@@ -11,6 +11,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/walter-cd/walter-server/api"
 	"github.com/walter-cd/walter-server/db"
+	"github.com/walter-cd/walter/log"
 )
 
 type templateHandler struct {
@@ -41,7 +42,9 @@ func main() {
 	r.Handler(regexp.MustCompile(`^/api/v1/projects(/.*)?$`), &api.Projects{})
 	http.Handle("/", r)
 
+	log.Info(fmt.Sprintf("walter-server is listening on %s", *host))
+
 	if err := http.ListenAndServe(*host, nil); err != nil {
-		log.Fatal("ListenAndServe:", err)
+		log.Error(fmt.Sprintf("ListenAndServe: %s", err))
 	}
 }

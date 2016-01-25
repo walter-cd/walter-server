@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"regexp"
 	"strconv"
 	"time"
@@ -80,8 +79,6 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 
 	dh := db.GetHandler()
 	defer dh.Close()
-
-	dh.SetLogOutput(os.Stdout)
 
 	order := dh.OrderBy("start", genmai.DESC).Limit(limit + 1)
 

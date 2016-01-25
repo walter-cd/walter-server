@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"regexp"
 
 	"github.com/walter-cd/walter-server/db"
@@ -16,8 +15,6 @@ type Projects struct {
 func (p *Projects) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	dh := db.GetHandler()
 	defer dh.Close()
-
-	dh.SetLogOutput(os.Stdout)
 
 	var projects []db.Project
 
