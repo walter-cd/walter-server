@@ -259,7 +259,7 @@ function WalterServerUI(walterServer, container) {
                 $(w).append(
                     group(
                         [
-                            {item: div().text(commit.Revision), width: "one tenth"},
+                            {item: div().text(commit.Revision.substr(0, 7)), width: "one tenth"},
                             {item: div().text(commit.Author), width: "two tenths"},
                             {item: div().text(commit.Message), width: "seven tenths"}
                         ],
