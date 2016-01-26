@@ -5,20 +5,20 @@ require 'net/http'
 payload = <<-EOF
 {
   "ref": "refs/heads/master",
-  "before": "41f0ed655a1aa4d4f5b84adb59f22e83318210e4",
-  "after": "f54f19d7053d7a766ea2a65fff31b4fc8ddd7cbf",
+  "before": "1a641f474e00245533f30cfd80aaf7848e7e4266",
+  "after": "7628a97ec44ce44ea7a2df9de5d7a20ef4bf8d09",
   "created": false,
   "deleted": false,
   "forced": false,
   "base_ref": null,
-  "compare": "https://github.com/mizzy/walter-test/compare/41f0ed655a1a...f54f19d7053d",
+  "compare": "https://github.com/mizzy/walter-test/compare/1a641f474e00...7628a97ec44c",
   "commits": [
     {
-      "id": "f54f19d7053d7a766ea2a65fff31b4fc8ddd7cbf",
+      "id": "7628a97ec44ce44ea7a2df9de5d7a20ef4bf8d09",
       "distinct": true,
-      "message": "test",
-      "timestamp": "2016-01-02T22:43:20+09:00",
-      "url": "https://github.com/mizzy/walter-test/commit/f54f19d7053d7a766ea2a65fff31b4fc8ddd7cbf",
+      "message": "Commit",
+      "timestamp": "2016-01-23T23:01:11+09:00",
+      "url": "https://github.com/mizzy/walter-test/commit/7628a97ec44ce44ea7a2df9de5d7a20ef4bf8d09",
       "author": {
         "name": "Gosuke Miyashita",
         "email": "gosukenator@gmail.com",
@@ -30,22 +30,22 @@ payload = <<-EOF
         "username": "mizzy"
       },
       "added": [
-        "test.txt"
+
       ],
       "removed": [
 
       ],
       "modified": [
-
+        "pipeline.yml"
       ]
     }
   ],
   "head_commit": {
-    "id": "f54f19d7053d7a766ea2a65fff31b4fc8ddd7cbf",
+    "id": "7628a97ec44ce44ea7a2df9de5d7a20ef4bf8d09",
     "distinct": true,
-    "message": "test",
-    "timestamp": "2016-01-02T22:43:20+09:00",
-    "url": "https://github.com/mizzy/walter-test/commit/f54f19d7053d7a766ea2a65fff31b4fc8ddd7cbf",
+    "message": "Commit",
+    "timestamp": "2016-01-23T23:01:11+09:00",
+    "url": "https://github.com/mizzy/walter-test/commit/7628a97ec44ce44ea7a2df9de5d7a20ef4bf8d09",
     "author": {
       "name": "Gosuke Miyashita",
       "email": "gosukenator@gmail.com",
@@ -57,13 +57,13 @@ payload = <<-EOF
       "username": "mizzy"
     },
     "added": [
-      "test.txt"
+
     ],
     "removed": [
 
     ],
     "modified": [
-
+      "pipeline.yml"
     ]
   },
   "repository": {
@@ -114,15 +114,16 @@ payload = <<-EOF
     "notifications_url": "https://api.github.com/repos/mizzy/walter-test/notifications{?since,all,participating}",
     "labels_url": "https://api.github.com/repos/mizzy/walter-test/labels{/name}",
     "releases_url": "https://api.github.com/repos/mizzy/walter-test/releases{/id}",
+    "deployments_url": "https://api.github.com/repos/mizzy/walter-test/deployments",
     "created_at": 1429065872,
-    "updated_at": "2015-04-15T02:44:32Z",
-    "pushed_at": 1451742214,
+    "updated_at": "2016-01-11T07:29:36Z",
+    "pushed_at": 1453557686,
     "git_url": "git://github.com/mizzy/walter-test.git",
     "ssh_url": "git@github.com:mizzy/walter-test.git",
     "clone_url": "https://github.com/mizzy/walter-test.git",
     "svn_url": "https://github.com/mizzy/walter-test",
     "homepage": null,
-    "size": 2,
+    "size": 9,
     "stargazers_count": 0,
     "watchers_count": 0,
     "language": null,
@@ -130,11 +131,11 @@ payload = <<-EOF
     "has_downloads": true,
     "has_wiki": true,
     "has_pages": false,
-    "forks_count": 0,
+    "forks_count": 1,
     "mirror_url": null,
-    "open_issues_count": 3,
-    "forks": 0,
-    "open_issues": 3,
+    "open_issues_count": 7,
+    "forks": 1,
+    "open_issues": 7,
     "watchers": 0,
     "default_branch": "master",
     "stargazers": 0,

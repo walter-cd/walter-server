@@ -8,6 +8,8 @@ import (
 	"github.com/naoina/genmai"
 )
 
+var DbFile = "walter.sqlite3"
+
 type Project struct {
 	Id        int64  `db:"pk"`
 	Name      string `size:"255"`
@@ -84,7 +86,7 @@ func (t *User) BeforeInsert() error {
 }
 
 func Init() {
-	db, err := genmai.New(&genmai.SQLite3Dialect{}, "walter.sqlite3")
+	db, err := genmai.New(&genmai.SQLite3Dialect{}, DbFile)
 	if err != nil {
 		panic(err)
 	}
@@ -111,7 +113,7 @@ func Init() {
 }
 
 func GetHandler() *genmai.DB {
-	db, err := genmai.New(&genmai.SQLite3Dialect{}, "walter.sqlite3")
+	db, err := genmai.New(&genmai.SQLite3Dialect{}, DbFile)
 	if err != nil {
 		panic(err)
 	}

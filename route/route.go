@@ -1,10 +1,12 @@
-package main
+package route
 
 import (
 	"fmt"
 	"net/http"
+
 	"regexp"
 
+	"github.com/walter-cd/walter-server/api"
 	"github.com/walter-cd/walter/log"
 )
 
@@ -15,6 +17,14 @@ type route struct {
 
 type RegexpHandler struct {
 	routes []*route
+}
+
+func GetRegexpHandler() *RegexpHandler {
+	r := &RegexpHandler{}
+	r.Handler(regexp.MustCompile(`^/api/v1/reports(/.*)?$`), &api.Reports{})
+	r.Handler(regexp.MustCompile(`^/api/v1/jobs(/.*)?$`), &api.Jobs{})
+	r.Handler(regexp.MustCompile(`^/api/v1/projects(/.*)?$`), &api.Projects{})
+	return r
 }
 
 func (h *RegexpHandler) Handler(pattern *regexp.Regexp, handler http.Handler) {
@@ -38,6 +48,7 @@ func (h *RegexpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+
 	// no pattern matched; serve file statically
 	http.FileServer(http.Dir("web")).ServeHTTP(w, r)
 }
