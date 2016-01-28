@@ -6,7 +6,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/walter-cd/walter-server/api"
 	"github.com/walter-cd/walter-server/db"
 )
 
@@ -18,7 +17,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestGetReport(t *testing.T) {
-	ts := httptest.NewServer(&api.Reports{})
+	ts := httptest.NewServer(&Reports{})
 	defer ts.Close()
 
 	res, err := http.Get(ts.URL)
