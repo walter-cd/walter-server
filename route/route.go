@@ -3,10 +3,12 @@ package route
 import (
 	"fmt"
 	"net/http"
+	"path/filepath"
 
 	"regexp"
 
 	"github.com/walter-cd/walter-server/api"
+	"github.com/walter-cd/walter-server/assets"
 	"github.com/walter-cd/walter/log"
 )
 
@@ -49,6 +51,25 @@ func (h *RegexpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// no pattern matched; serve file statically
-	http.FileServer(http.Dir("web")).ServeHTTP(w, r)
+	path := r.URL.Path
+	if path == "/" {
+		path = "/index.html"
+	}
+
+	b, err := assets.Asset("web" + path)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(w, err.Error())
+		return
+	}
+
+	ext := filepath.Ext(path)
+	switch ext {
+	case ".css":
+		w.Header().Set("Content-Type", "text/css")
+	case ".js":
+		w.Header().Set("Content-Type", "application/javascript")
+	}
+
+	w.Write(b)
 }
