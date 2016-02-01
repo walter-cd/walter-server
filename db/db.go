@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"regexp"
 	"time"
 
@@ -8,7 +9,7 @@ import (
 	"github.com/naoina/genmai"
 )
 
-var DbFile = "walter.sqlite3"
+var DbFile string
 
 type Project struct {
 	Id        int64  `db:"pk"`
@@ -45,8 +46,7 @@ type Stage struct {
 	ParentStageId int64
 	Name          string `size:"255"`
 	Status        string `size:"255"`
-	Out           string
-	Err           string
+	Log           string
 	Start         time.Time
 	End           time.Time
 	CreatedAt     time.Time
@@ -85,7 +85,8 @@ func (t *User) BeforeInsert() error {
 	return nil
 }
 
-func Init() {
+func Init(dbDir string) {
+	DbFile = fmt.Sprintf("%s/walter.sqlite3", dbDir)
 	db, err := genmai.New(&genmai.SQLite3Dialect{}, DbFile)
 	if err != nil {
 		panic(err)

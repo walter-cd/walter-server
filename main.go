@@ -13,16 +13,21 @@ import (
 )
 
 func main() {
-	db.Init()
-
-	var host string
+	var host, dbDir string
 
 	flags := flag.NewFlagSet("walter", flag.ExitOnError)
 	flags.StringVar(&host, "host", "127.0.0.1:8080", "The host of the application.")
+	flags.StringVar(&dbDir, "db_dir", "/var/lib/walter", "The directory of the sqlite3 db file put on.")
 
 	if err := flags.Parse(os.Args[1:]); err != nil {
 		panic(err)
 	}
+
+	if err := os.MkdirAll(dbDir, 0755); err != nil {
+		panic(err)
+	}
+
+	db.Init(dbDir)
 
 	r := route.GetRegexpHandler()
 	http.Handle("/", r)
