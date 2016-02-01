@@ -49,8 +49,7 @@ type Commit struct {
 type Stage struct {
 	Name   string
 	Status string
-	Out    string
-	Err    string
+	Log    string
 	Stages []*Stage `json:",omitempty"`
 	Start  int64
 	End    int64
@@ -176,8 +175,7 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 			s := &Stage{
 				Name:   stage.Name,
 				Status: stage.Status,
-				Out:    stage.Out,
-				Err:    stage.Err,
+				Log:    stage.Log,
 				Start:  stage.Start.Unix(),
 				End:    stage.End.Unix(),
 			}
@@ -188,8 +186,7 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 				s.Stages = append(s.Stages, &Stage{
 					Name:   childStage.Name,
 					Status: childStage.Status,
-					Out:    childStage.Out,
-					Err:    childStage.Err,
+					Log:    childStage.Log,
 					Start:  childStage.Start.Unix(),
 					End:    childStage.End.Unix(),
 				})
@@ -301,8 +298,7 @@ func createReport(w http.ResponseWriter, r *http.Request) {
 			ReportId: reportId,
 			Name:     stage.Name,
 			Status:   stage.Status,
-			Out:      stage.Out,
-			Err:      stage.Err,
+			Log:      stage.Log,
 			Start:    time.Unix(stage.Start, 0),
 			End:      time.Unix(stage.End, 0),
 		}
@@ -315,8 +311,7 @@ func createReport(w http.ResponseWriter, r *http.Request) {
 				ParentStageId: stageId,
 				Name:          childStage.Name,
 				Status:        childStage.Status,
-				Out:           childStage.Out,
-				Err:           childStage.Err,
+				Log:           childStage.Log,
 				Start:         time.Unix(childStage.Start, 0),
 				End:           time.Unix(childStage.End, 0),
 			}
