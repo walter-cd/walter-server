@@ -1,8 +1,9 @@
 COMMIT = $$(git describe --always)
 
 deps:
-	go get -d -t ./...
 	go get github.com/jteeuwen/go-bindata/...
+	go-bindata -pkg=assets -o=assets/assets.go ./web/...
+	go get -d -t ./...
 	go get github.com/tools/godep
 
 test: deps
@@ -10,7 +11,6 @@ test: deps
 
 build: deps
 	godep restore
-	go-bindata -pkg=assets -o=assets/assets.go ./web/...
 	go build -ldflags "-X main.GitCommit=\"$(COMMIT)\"" -o bin/walter-server
 
 install: deps
