@@ -43,8 +43,7 @@ define_method(:generate_report) do |running|
         'Status' => 'Passed',
         'Start' => 1449062903,
         'End' => 1449062920,
-        'Out' => out_example_1,
-        'Err' => '',
+        'Log' => out_example_1,
         'Stage' => []
       },
       {
@@ -52,16 +51,14 @@ define_method(:generate_report) do |running|
         'Status' => 'Passed',
         'Start' => 1449062903,
         'End' => 1449062940,
-        'Out' => out_example_2,
-        'Err' => '',
+        'Log' => out_example_2,
         'Stages' => [
           {
             'Name' => 'build_thing_substage_1',
             'Status' => 'Passed',
             'Start' => 1449062903,
             'End' => 1449062923,
-            'Out' => '',
-            'Err' => 'bash: foobar: command not found...',
+            'Log' => '',
             'Stages' => []
           }
         ]
@@ -71,8 +68,7 @@ define_method(:generate_report) do |running|
         'Status' => 'Passed',
         'Start' => 1449062903,
         'End' => 1449062920,
-        'Out' => '',
-        'Err' => '',
+        'Log' => '',
         'Stages' => []
       },
     ],

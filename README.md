@@ -127,8 +127,7 @@ GET /api/v1/reports?count=XXXXX&until=YYYYY
         {
           "Name": "command_stage_1",
           "Status": "Passed",
-          "Out": "12:24:00  INFO Pipeline file path: \"./pipeline.yml\"\\n12:24:00  WARN failed to read the configuration file\\n12:24:00  INFO kettle places on heating element\\n12:24:00  INFO a bit of steam visible\\n12:24:00  WARN getting a little hot now\\n12:24:00  WARN loud whistling sounds\\n12:24:00 ERROR open ./pipeline.yml: no such file or directory\\n12:24:00 ERROR failed to create Walter\\n",
-          "Err": "",
+          "Log": "12:24:00  INFO Pipeline file path: \"./pipeline.yml\"\\n12:24:00  WARN failed to read the configuration file\\n12:24:00  INFO kettle places on heating element\\n12:24:00  INFO a bit of steam visible\\n12:24:00  WARN getting a little hot now\\n12:24:00  WARN loud whistling sounds\\n12:24:00 ERROR open ./pipeline.yml: no such file or directory\\n12:24:00 ERROR failed to create Walter\\n",
           "Stages": null,
           "Start": 1450268347,
           "End": 1450269085
@@ -162,8 +161,7 @@ GET /api/v1/reports?count=XXXXX&until=YYYYY
         {
           "Name": "command_stage_1",
           "Status": "Passed",
-          "Out": "12:24:00  INFO Pipeline file path: \"./pipeline.yml\"\\n12:24:00  WARN failed to read the configuration file\\n12:24:00  INFO kettle places on heating element\\n12:24:00  INFO a bit of steam visible\\n12:24:00  WARN getting a little hot now\\n12:24:00  WARN loud whistling sounds\\n12:24:00 ERROR open ./pipeline.yml: no such file or directory\\n12:24:00 ERROR failed to create Walter\\n",
-          "Err": "",
+          "Log": "12:24:00  INFO Pipeline file path: \"./pipeline.yml\"\\n12:24:00  WARN failed to read the configuration file\\n12:24:00  INFO kettle places on heating element\\n12:24:00  INFO a bit of steam visible\\n12:24:00  WARN getting a little hot now\\n12:24:00  WARN loud whistling sounds\\n12:24:00 ERROR open ./pipeline.yml: no such file or directory\\n12:24:00 ERROR failed to create Walter\\n",
           "Stages": null,
           "Start": 1450247583,
           "End": 1450248050
@@ -224,22 +222,19 @@ GET /api/v1/reports/1
       {
         "Name": "command_stage_1",
         "Status": "Passed",
-        "Out": "12:24:00  INFO Pipeline file path: \"./pipeline.yml\"\\n12:24:00  WARN failed to read the configuration file\\n12:24:00  INFO kettle places on heating element\\n12:24:00  INFO a bit of steam visible\\n12:24:00  WARN getting a little hot now\\n12:24:00  WARN loud whistling sounds\\n12:24:00 ERROR open ./pipeline.yml: no such file or directory\\n12:24:00 ERROR failed to create Walter\\n",
-        "Err": "",
+        "Log": "12:24:00  INFO Pipeline file path: \"./pipeline.yml\"\\n12:24:00  WARN failed to read the configuration file\\n12:24:00  INFO kettle places on heating element\\n12:24:00  INFO a bit of steam visible\\n12:24:00  WARN getting a little hot now\\n12:24:00  WARN loud whistling sounds\\n12:24:00 ERROR open ./pipeline.yml: no such file or directory\\n12:24:00 ERROR failed to create Walter\\n",
         "Start": 1452688790,
         "End": 1452688960
       },
       {
         "Name": "build_thing",
         "Status": "Passed",
-        "Out": "12:24:00  INFO this info message is to test the INFO message level\"\\n",
-        "Err": "",
+        "Log": "12:24:00  INFO this info message is to test the INFO message level\"\\n",
         "Stages": [
           {
             "Name": "build_thing_substage_1",
             "Status": "Passed",
-            "Out": "",
-            "Err": "bash: foobar: command not found...",
+            "Log": "bash: foobar: command not found...",
             "Start": 1452688960,
             "End": 1452689047
           }
@@ -250,8 +245,7 @@ GET /api/v1/reports/1
       {
         "Name": "package_product",
         "Status": "Pending",
-        "Out": "",
-        "Err": "",
+        "Log": "",
         "Start": 0,
         "End": 0
       }

@@ -371,8 +371,7 @@ function WalterServerUI(walterServer, container) {
             ]))
             .append(
                 div()
-                    .append(div("row").append(stage.Out == "" ? "" : div("console").append(div("pre").text(stage.Out))))
-                    .append(div("row").append(stage.Err == "" ? "" : div("console-error").append(div("pre").text(stage.Err))))
+                    .append(div("row").append(stage.Log == "" ? "" : div("console").append(div("pre").text(stage.Log))))
             );
 
         // add substages
