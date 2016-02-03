@@ -206,6 +206,7 @@ func (j *Jobs) handlePullRequestEvent(w http.ResponseWriter, body string) {
 	job.CloneUrl = data.PullRequest.Base.Repo.CloneUrl
 	job.Branch = data.PullRequest.Head.Ref
 	job.PullRequestUrl = data.PullRequest.HtmlUrl
+	job.CompareUrl = job.PullRequestUrl
 	job.PullRequestNumber = data.Number
 	job.StatusesUrl = data.PullRequest.StatusesUrl
 
