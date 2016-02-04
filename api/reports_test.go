@@ -11,7 +11,7 @@ import (
 
 func TestMain(m *testing.M) {
 	db.DbFile = "test.sqlite3"
-	db.Init()
+	db.Init("/tmp")
 	os.Exit(m.Run())
 	os.Remove(db.DbFile)
 }
