@@ -17,7 +17,7 @@ func main() {
 
 	flags := flag.NewFlagSet("walter", flag.ExitOnError)
 	flags.StringVar(&host, "host", "0.0.0.0:8080", "The host of the application.")
-	flags.StringVar(&dbDir, "db_dir", "/var/lib/walter", "The directory of the sqlite3 db file put on.")
+	flags.StringVar(&dbDir, "db_dir", "/var/lib/walter", "The directory of the sqlite3 db file.")
 
 	if err := flags.Parse(os.Args[1:]); err != nil {
 		panic(err)

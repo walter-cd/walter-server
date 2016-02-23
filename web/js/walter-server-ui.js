@@ -80,11 +80,16 @@ function WalterServerUI(walterServer, container) {
         "no-results": {
             tag: "<h3/>",
             classes: ["align-center one centered mobile third double-pad-top double-pad-bottom", "walter-color-faded walter-color-grey"]
-        }
+        },
+        "expand-icon": {tag: "<span/>", classes: ["pad-left icon-expand-alt walter-color-grey inline"]},
+        "collapse-icon": {tag: "<span/>", classes: ["pad-left icon-collapse-alt walter-color-grey inline"]}
     };
 
     // the inner block
     var block = div("block");
+
+    // the visibility of each report's stage, such that it can be reapplied after refresh
+    var stageVisibility = {};
 
     /**
      * Create and style a wrapper div using the named template
@@ -159,7 +164,7 @@ function WalterServerUI(walterServer, container) {
         if (report.Stages && report.Stages.length) {
             var stages = div("row");
             for (var i = 0; i < report.Stages.length; i++) {
-                $(stages).append(stageContainer(report.Stages[i]));
+                $(stages).append(stageContainer(report.Id, report.Stages[i]));
             }
             $(w).append(stages);
         }
@@ -212,17 +217,13 @@ function WalterServerUI(walterServer, container) {
      * Create a permalink
      */
     function createPermalink(options) {
-        $(permalinkNavigatorOption)
-            .show()
-            .unbind("click")
-            .bind("click", function () {
-                if (options.project) {
-                    var parameters = "?project=" + encodeURIComponent(options.project.Name) + (options.report ? "&report=" + options.report.Id : "");
-                    window.prompt("Here is a direct link to this Project" + (options.report?" and Report":""),
-                        window.location.origin + parameters);
-                    window.location.search = parameters;
-                }
-            });
+        var parameters =
+                (options.activity ? "activity" : "") +
+                (options.projects ? "projects" : "") +
+                (options.project ? "project=" + encodeURIComponent(options.project.Name) : "") +
+                (options.report ? "&report=" + options.report.Id : "")
+            ;
+        window.location.hash = parameters;
     }
 
     /**
@@ -354,32 +355,78 @@ function WalterServerUI(walterServer, container) {
         return w;
     }
 
+
+    /**
+     * Remember the visibility of a report's stage
+     * @param reportId
+     * @param stageName
+     * @param [defaultVisibility]
+     */
+    function getStageVisibility(reportId, stageName, defaultVisibility) {
+        var key = reportId + "-" + stageName;
+        var visibility = stageVisibility[key];
+        return visibility === undefined ? defaultVisibility : visibility;
+    }
+
+    /**
+     * Set the visibility of a report's stage
+     * @param reportId
+     * @param stageName
+     * @param visibility
+     */
+    function setStageVisibility(reportId, stageName, visibility) {
+        var key = reportId + "-" + stageName;
+        stageVisibility[key] = visibility;
+        $("#" + key).toggle(visibility);
+    }
+
     /**
      * Create a project stage container
      * @param stage
      */
-    function stageContainer(stage) {
-        var w = div("stage", stage.Id);
+    function stageContainer(reportId, stage) {
+        var w = div("stage");
+
+        var visible = getStageVisibility(reportId, stage.Name, stage.Status == "Failed");
+        var hasOutput = stage.Log.trim() != "";
+        var statusDiv = status(stage.Status, " " + stage.Status + " " + stage.Name);
+
+        if (hasOutput) {
+            $(statusDiv).addClass("walter-pointer")
+                .bind("click", function () {
+                    setStageVisibility(reportId, stage.Name, !getStageVisibility(reportId, stage.Name, visible));
+                    $(this).find(".walter-expand-icon,.walter-collapse-icon").toggle();
+                })
+                .append(div("expand-icon").toggle(!visible))
+                .append(div("collapse-icon").toggle(visible))
+        }
 
         $(w).append(
             group([
                 {
-                    item: status(stage.Status, " " + stage.Status + " " + stage.Name),
+                    item: statusDiv,
                     width: "one half"
                 },
                 {item: div().append(duration(stage.Start, stage.End)), width: "one half align-right"}
-            ]))
-            .append(
-                div()
-                    .append(div("row").append(stage.Log == "" ? "" : div("console").append(div("pre").text(stage.Log))))
-            );
+            ]));
 
+        if (hasOutput) {
+            $(w).append(
+                div()
+                    .attr("id", reportId + "-" + stage.Name)
+                    .append(
+                        div("row")
+                            .append(div("console").append(div("pre").text(stage.Log == "" ? "This Stage produced no output" : stage.Log)))
+                    )
+                    .toggle(visible)
+            );
+        }
         // add substages
         if (stage.Stages && stage.Stages.length) {
             var subStages = div("substage");
             $(w).append(subStages);
             for (var i = 0; i < stage.Stages.length; i++) {
-                $(subStages).append(stageContainer(stage.Stages[i]));
+                $(subStages).append(stageContainer(reportId, stage.Stages[i]));
             }
         }
         return w;
@@ -607,6 +654,7 @@ function WalterServerUI(walterServer, container) {
                 );
             }
         });
+        createPermalink({projects: true});
     }
 
     /**
@@ -640,6 +688,8 @@ function WalterServerUI(walterServer, container) {
                 }
             });
 
+        createPermalink({activity: true});
+
         setRefreshTimer(showActivity);
     }
 
@@ -662,13 +712,10 @@ function WalterServerUI(walterServer, container) {
 
     function getParameters() {
         var namedValues = {};
-        var splitPoint = window.location.href.indexOf('?');
-        if (splitPoint != -1) {
-            var params = window.location.href.slice(splitPoint + 1).split('&');
-            for (var i = 0; i < params.length; i++) {
-                var param = params[i].split('=');
-                namedValues[param[0]] = param[1] ? decodeURIComponent(param[1]) : true;
-            }
+        var params = window.location.hash.substring(1).split('&');
+        for (var i = 0; i < params.length; i++) {
+            var param = params[i].split('=');
+            namedValues[param[0]] = param[1] ? decodeURIComponent(param[1]) : true;
         }
         return namedValues;
     }
@@ -677,41 +724,47 @@ function WalterServerUI(walterServer, container) {
         .append(navigator())
         .append(block);
 
-    // default action
-    var params = getParameters();
-    if (params["project"]) {
-        var project = params["project"];
-        walterServer.getProjects(project, function (matches) {
-            if (matches && matches.length) {
-                for (var i = 0; i < matches.length; i++) {
-                    if (matches[i].Name == project) {
-                        var matchedProject = matches[i];
-                        var reportId = params["report"];
-                        if (reportId) {
-                            walterServer.getProjectHistory(matchedProject.Id, {count: 1000}, function (history) {
-                                if (history) {
-                                    for (var j = 0; j < history.length; j++) {
-                                        if (history[j].Id == reportId) {
-                                            showReport(history[j]);
-                                            break;
+    function onNavigationChange() {
+        // default action
+        var params = getParameters();
+        if (params["project"]) {
+            var project = params["project"];
+            walterServer.getProjects(project, function (matches) {
+                if (matches && matches.length) {
+                    for (var i = 0; i < matches.length; i++) {
+                        if (matches[i].Name == project) {
+                            var matchedProject = matches[i];
+                            var reportId = params["report"];
+                            if (reportId) {
+                                walterServer.getProjectHistory(matchedProject.Id, {count: 1000}, function (history) {
+                                    if (history) {
+                                        for (var j = 0; j < history.length; j++) {
+                                            if (history[j].Id == reportId) {
+                                                showReport(history[j]);
+                                                break;
+                                            }
                                         }
                                     }
-                                }
-                            });
+                                });
+                            }
+                            else {
+                                showProject(matchedProject);
+                            }
+                            break;
                         }
-                        else {
-                            showProject(matchedProject);
-                        }
-                        break;
                     }
                 }
-            }
-        });
+            });
+        }
+        else if (params["projects"]) {
+            $(".walter-navigator-option-projects").trigger("click");
+        }
+        else {
+            $(".walter-navigator-option-activity").trigger("click");
+        }
     }
-    else if (params["projects"]) {
-        $(".walter-navigator-option-projects").trigger("click");
-    }
-    else {
-        $(".walter-navigator-option-activity").trigger("click");
-    }
+
+    $(window).on("hashchange", onNavigationChange);
+
+    onNavigationChange();
 }

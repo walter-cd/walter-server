@@ -55,6 +55,10 @@
     cursor: pointer;
 }
 
+.walter-pointer:hover {
+  text-shadow: 0 0 2px rgba(0, 200, 255, 0.3);
+}
+
 .walter-console {
     color: #0f0;
     background-color: #34495E;
