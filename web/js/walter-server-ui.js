@@ -359,11 +359,11 @@ function WalterServerUI(walterServer, container) {
     /**
      * Remember the visibility of a report's stage
      * @param reportId
-     * @param stageName
+     * @param stageId
      * @param [defaultVisibility]
      */
-    function getStageVisibility(reportId, stageName, defaultVisibility) {
-        var key = reportId + "-" + stageName;
+    function getStageVisibility(reportId, stageId, defaultVisibility) {
+        var key = "walter-output-" + reportId + "-" + stageId;
         var visibility = stageVisibility[key];
         return visibility === undefined ? defaultVisibility : visibility;
     }
@@ -371,11 +371,11 @@ function WalterServerUI(walterServer, container) {
     /**
      * Set the visibility of a report's stage
      * @param reportId
-     * @param stageName
+     * @param stageId
      * @param visibility
      */
-    function setStageVisibility(reportId, stageName, visibility) {
-        var key = reportId + "-" + stageName;
+    function setStageVisibility(reportId, stageId, visibility) {
+        var key =  "walter-output-" + reportId + "-" + stageId;
         stageVisibility[key] = visibility;
         $("#" + key).toggle(visibility);
     }
@@ -387,14 +387,14 @@ function WalterServerUI(walterServer, container) {
     function stageContainer(reportId, stage) {
         var w = div("stage");
 
-        var visible = getStageVisibility(reportId, stage.Name, stage.Status == "Failed");
+        var visible = getStageVisibility(reportId, stage.Id, stage.Status == "Failed");
         var hasOutput = stage.Log.trim() != "";
         var statusDiv = status(stage.Status, " " + stage.Status + " " + stage.Name);
 
         if (hasOutput) {
             $(statusDiv).addClass("walter-pointer")
                 .bind("click", function () {
-                    setStageVisibility(reportId, stage.Name, !getStageVisibility(reportId, stage.Name, visible));
+                    setStageVisibility(reportId, stage.Id, !getStageVisibility(reportId, stage.Id, visible));
                     $(this).find(".walter-expand-icon,.walter-collapse-icon").toggle();
                 })
                 .append(div("expand-icon").toggle(!visible))
@@ -413,7 +413,7 @@ function WalterServerUI(walterServer, container) {
         if (hasOutput) {
             $(w).append(
                 div()
-                    .attr("id", reportId + "-" + stage.Name)
+                    .attr("id",  "walter-output-" + reportId + "-" + stage.Id)
                     .append(
                         div("row")
                             .append(div("console").append(div("pre").text(stage.Log == "" ? "This Stage produced no output" : stage.Log)))

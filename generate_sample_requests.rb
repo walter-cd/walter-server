@@ -39,7 +39,7 @@ define_method(:generate_report) do |running|
     ],
     'Stages' => [
       {
-        'Name' => 'command_stage_1',
+        'Name' => 'command stage 1',
         'Status' => 'Passed',
         'Start' => 1449062903,
         'End' => 1449062920,
@@ -47,7 +47,7 @@ define_method(:generate_report) do |running|
         'Stage' => []
       },
       {
-        'Name' => 'build_thing',
+        'Name' => 'build thing',
         'Status' => 'Passed',
         'Start' => 1449062903,
         'End' => 1449062940,
@@ -64,7 +64,7 @@ define_method(:generate_report) do |running|
         ]
       },
       {
-        'Name' => 'package_product',
+        'Name' => 'package product',
         'Status' => 'Passed',
         'Start' => 1449062903,
         'End' => 1449062920,

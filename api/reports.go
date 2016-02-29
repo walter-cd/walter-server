@@ -47,6 +47,7 @@ type Commit struct {
 }
 
 type Stage struct {
+	Id     int64 `json:",omitempty"`
 	Name   string
 	Status string
 	Log    string
@@ -173,6 +174,7 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 		dh.Select(&stages, dh.Where("report_id", "=", report.Id).And(dh.Where("parent_stage_id", "=", 0)))
 		for _, stage := range stages {
 			s := &Stage{
+				Id: 	stage.Id,
 				Name:   stage.Name,
 				Status: stage.Status,
 				Log:    stage.Log,
@@ -184,6 +186,7 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 			dh.Select(&childStages, dh.Where("report_id", "=", report.Id).And(dh.Where("parent_stage_id", "=", stage.Id)))
 			for _, childStage := range childStages {
 				s.Stages = append(s.Stages, &Stage{
+					Id:	childStage.Id,
 					Name:   childStage.Name,
 					Status: childStage.Status,
 					Log:    childStage.Log,
@@ -295,6 +298,7 @@ func createReport(w http.ResponseWriter, r *http.Request) {
 
 	for _, stage := range data.Stages {
 		s := &db.Stage{
+			Id:       stage.Id,
 			ReportId: reportId,
 			Name:     stage.Name,
 			Status:   stage.Status,
@@ -307,6 +311,7 @@ func createReport(w http.ResponseWriter, r *http.Request) {
 
 		for _, childStage := range stage.Stages {
 			s := &db.Stage{
+				Id:            stage.Id,
 				ReportId:      reportId,
 				ParentStageId: stageId,
 				Name:          childStage.Name,
